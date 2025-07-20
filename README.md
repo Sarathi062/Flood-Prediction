@@ -52,12 +52,11 @@ This project is a **web-based Room Booking and Calendar Alignment System** desig
 
 | Role       | Book Rooms | Modify Own Bookings | View Calendar | Manage Users & Rooms | Cancel Any Booking | Generate Reports |
 |------------|:----------:|:------------------:|:-------------:|:-------------------:|:-----------------:|:----------------:|
-| Admin      |     ✔️      |         ✔️          |      ✔️        |         ✔️          |        ✔️         |        ✔️         |
-| Teacher    |     ✔️      |         ✔️          |      ✔️        |                     |                   |                  |
+| Admin      |     ✔️      |         ✔️          |      ✔️        |         ✔️          |        ✔️         |        ✔️         |   
 | Student    |     ✔️*     |         ✔️*         |      ✔️        |                     |                   |                  |
 | Support    |            |                    |      ✔️        |         ✔️           |        ✔️         |        ✔️         |
 
-\* If enabled by policy
+
 
 ---
 
