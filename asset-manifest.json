@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Flood-Prediction/static/css/main.323d7611.css",
+    "main.js": "/Flood-Prediction/static/js/main.8e91077c.js",
+    "static/js/453.3596d2ca.chunk.js": "/Flood-Prediction/static/js/453.3596d2ca.chunk.js",
+    "index.html": "/Flood-Prediction/index.html",
+    "main.323d7611.css.map": "/Flood-Prediction/static/css/main.323d7611.css.map",
+    "main.8e91077c.js.map": "/Flood-Prediction/static/js/main.8e91077c.js.map",
+    "453.3596d2ca.chunk.js.map": "/Flood-Prediction/static/js/453.3596d2ca.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.323d7611.css",
+    "static/js/main.8e91077c.js"
+  ]
+}
