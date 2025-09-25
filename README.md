@@ -1,219 +1,147 @@
-# Room Booking & Calendar Alignment System
+# Pune Flood Prediction System
 
-## Overview
+A machine learning–powered pipeline to forecast flood risk in Pune using real-time weather API data combined with dam, river, and city waterbody levels from open and government sources.
 
-This project is a **web-based Room Booking and Calendar Alignment System** designed for educational institutions, studios, or organizations that require coordinated booking of multiple spaces (e.g., classrooms and practice halls) with consideration for their specific purposes, activity types, and acoustics. The system eliminates double-booking, ensures synchronized slot reservation, and supports resource-appropriate booking—all from a streamlined, user-friendly interface.
 
----
 
 ## Table of Contents
 
-- [Key Features](#key-features)
-- [User Roles & Permissions](#user-roles--permissions)
-- [System Architecture](#system-architecture)
-- [User Journey & Workflows](#user-journey--workflows)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-- [Core Entity Relationship Diagram](#core-entity-relationship-diagram)
-- [Admin Capabilities](#admin-capabilities)
-- [Future Enhancements](#future-enhancements)
-
----
-
-## Key Features
-
-- **Secure Authentication & Authorization**  
-  Supports role-based access for admins, teachers, students, and facilities/support users.
-
-- **Resource Filtering & Availability**  
-  Search and book rooms based on activity, room type, capacity, acoustics, and equipment.
-
-- **Calendar Alignment**  
-  Finds and displays slots where all required spaces (e.g., classroom + practice hall) are mutually available.
-
-- **Conflict Prevention**  
-  Built-in conflict checks prevent double-booking and ensure all room pre-requisites are satisfied.
-
-- **Booking Management**  
-  Create, modify, or cancel bookings, with instant updates and notifications for all stakeholders.
-
-- **Calendar View**  
-  Visual interface for viewing all bookings and room availabilities (daily, weekly, monthly).
-
-- **Notifications**  
-  Email and/or push notifications for booking confirmations, changes, cancellations, and reminders.
-
-- **Reporting & Analytics**  
-  Dashboard for admins to review usage statistics, booking patterns, and generate activity reports.
-
----
-
-## User Roles & Permissions
-
-| Role       | Book Rooms | Modify Own Bookings | View Calendar | Manage Users & Rooms | Cancel Any Booking | Generate Reports |
-|------------|:----------:|:------------------:|:-------------:|:-------------------:|:-----------------:|:----------------:|
-| Admin      |     ✔️      |         ✔️          |      ✔️        |         ✔️          |        ✔️         |        ✔️         |   
-| Student    |     ✔️*     |         ✔️*         |      ✔️        |                     |                   |                  |
-| Support    |            |                    |      ✔️        |         ✔️           |        ✔️         |        ✔️         |
+- [Overview](#overview)
+- [Features](#features)
+- [Data Sources](#data-sources)
+- [Architecture](#architecture)
+- [Setup](#setup)
+- [Workflow](#workflow)
+- [Directory Structure](#directory-structure)
+- [Extending and Future Scope](#extending-and-future-scope)
+- [License](#license)
+- [Contact](#contact)
 
 
 
----
+## Overview
 
-## System Architecture
+This project automates the collection, processing, and prediction of flood risk in Pune city. It periodically fetches real-time weather and waterbody data, merges it, and feeds it into a configurable ML model to estimate flood probability and optionally trigger notifications/alerts.
 
-- **Frontend:** React.js (with optional TypeScript), responsive design for web browsers, calendar UI via FullCalendar.
-- **Backend:** Node.js with Express.js for RESTful API development and real-time conflict checks.
-- **Database:** MongoDB (NoSQL; optimized for flexible, nested booking and resource structures).
-- **Authentication:** JWT for user sessions, OAuth 2.0 for social/institutional login.
-- **Calendar Integration:** Google Calendar API for two-way sync (optional).
-- **Notifications:** Nodemailer (email alerts), web-push or Twilio (push/SMS notifications).
-- **Analytics:** MongoDB Aggregation/Chart.js integration for admin dashboards.
 
----
 
-## User Journey & Workflows
+## Features
 
-### General Workflow
+- Periodic data collection from OpenWeather API and open/public water level endpoints
+- Flexible ingestion: combines weather (rain, temp, humidity), dam, river, and optionally city drainage data
+- ML-ready data assembly & storage (CSV or MongoDB)
+- ML model training and pickling for ongoing, retrainable predictions
+- Risk prediction script or API endpoint: input current conditions, receive risk score
+- Alert/threshold logic for triggering notifications or logs
 
-1. **Login & Dashboard**
-   - Users authenticate by role and land on a personalized dashboard.
 
-2. **Initiate Booking**
-   - Select desired activity/module and define pre-requisites (e.g., requiring both a classroom and practice hall).
 
-3. **Room Purpose Filtering**
-   - System filters available rooms/halls by activity suitability, acoustics, equipment, and size.
+## Data Sources
 
-4. **Availability & Calendar Alignment**
-   - Displays timeslots where all required rooms are available together, avoiding conflicts.
+- **Weather:** OpenWeatherMap API -- rainfall, temperature, humidity, pressure, wind
+- **Dams/Rivers:** 
+    - State WRD or Bhima Basin RTDAS for dam levels (Khadakwasla, Panshet, Varasgaon, Mulshi, Temghar)
+    - Central Water Commission (CWC) or RTDAS for river levels (Mutha, Mula, Pavana, Bhima)
+- **Static/Context (optional):**
+    - PMC-published drainage and sewage infrastructure stats (annual/PDF/manual extract)
+- **Historical floods:** From local news, papers, or manual event tagging
 
-5. **Slot & Room Selection**
-   - User picks from filtered, available slots, reviews room features, and proceeds.
 
-6. **Booking Submission**
-   - Double-checks for conflicts in real time before committing the reservation.
 
-7. **Confirmation & Notifications**
-   - Updates system calendars, sends instant notifications to involved parties.
+## Architecture
 
-8. **View/Modify/Cancel Bookings**
-   - Users can view, edit, or cancel bookings within policy constraints; calendars auto-update.
+- **collect_data.py**: Fetch, normalize, and save current weather and water features
+- **train_model.py**: Train an ML model (RandomForest, LSTM, etc.) on historical or labeled data
+- **predict.py**: Run the model on new/current data for flood prediction
+- **/data**: Stores rolling time-series data as CSV or DB
+- **ML/ or models/**: Stores trained models (joblib/pickle/H5)
 
-9. **Admin Oversight**
-   - Certain bookings require admin approval (e.g., large events or exceptional cases).
+_No explicit user interface or role management is present; this is a pipeline/data+ML project._
 
-### Booking Conflict Handling
 
-Upon booking submission, the system instantly rechecks the current state of all requested time slots for all selected rooms to prevent double-booking. If a conflict is detected, the user is prompted to select an alternate slot.
 
----
-
-## Technology Stack
-
-| Layer        | Technology               | Why Chosen                                      |
-|--------------|--------------------------|-------------------------------------------------|
-| Frontend     | React.js                 | Modular UI, reusable components, robust for web |
-| Backend      | Node.js + Express.js     | Event-driven, real-time conflict checks         |
-| Database     | MongoDB                  | Flexibility for complex booking relationships   |
-| Auth         | JWT, OAuth 2.0           | Secure, supports third-party/institutional SSO  |
-| Calendar     | Google Calendar API      | Easy integration with existing workflows        |
-| Notifications| Nodemailer, web-push     | Reliable, customizable notifications            |
-| Analytics    | Chart.js (React plugin)  | Rich, interactive dashboards                    |
-
----
-
-## Getting Started
+## Setup
 
 ### Prerequisites
 
-- Node.js & npm installed
-- MongoDB database running
-- Google Cloud account for Calendar API (if using)
-- Email service credentials (for notifications)
+- Python 3.8+ (with pandas, numpy, scikit-learn, requests)
+- MongoDB (for DB storage, optional; can use flat files)
+- Node.js (if using REST API trigger)
+- OpenWeather API key & endpoints for dam/river data
 
-### Setup
+### Install & Run
 
-```
-git clone https://github.com/sarathi062023/room-booking-app.git
-cd room-booking-app
-npm install
-```
-
-- Configure `.env` with MongoDB URI, JWT secret, mail credentials, etc.
-- Start backend:  
-  `npm run server`
-- Start frontend:  
-  `npm run client`
-
-### Run Tests
-
-```
-npm test
+```bash
+git clone https://github.com/your-org/pune-flood-prediction.git
+cd pune-flood-prediction
+pip install -r requirements.txt
+python collect_data.py         # Collect live features and save to data/
+python train_model.py          # Train the model (optionally periodic)
+python predict.py              # Get a prediction for next-hour flood risk
 ```
 
----
-
-## Core Entity Relationship Diagram
-
-- **User** (userId, name, role, email)
-  - ↕️ Books → **Booking** (bookingId, userId, roomId, start, end)
-- **Room** (roomId, typeId, attributes)
-  - ↔️ Defined by → **RoomType** (typeId, features, acousticRating)
-  - ↕️ Linked to → **Calendar** (calendarId, events)
-- **Booking** (bookingId, userId, roomId, timeRange)
-  - ↔️ Triggers → **Notification** (notifId, userId, bookingId, type)
-- **Admin**  
-  - ↕️ Manages → Users, Rooms, Bookings, and Reports
 
 
-ERD Example Description (Textual)
+## Workflow
 
-- A **User** can make multiple **Bookings**; each **Booking** reserves a specific **Room** for a given time slot.
-- Each **Room** has a defined **RoomType** (acoustics, equipment, suitability).
-- **Admin** can manage Users, Rooms, RoomTypes, Bookings, and view system analytics.
-- The **Calendar** documents all bookings, available and blocked slots.
+1. **Data is collected** every 30-60 min (CRON/scheduler or manual run).
+2. **Features are joined**: weather, dam, river, (static capacity if available).
+3. **Training data is labeled** with historical flood/no-flood events.
+4. **Model is trained** regularly/retrained as new events are labeled.
+5. **Predictions** are triggered on new/live data, either as scripts or via API.
+6. **Alerts/logs** are written if risk exceeds configured threshold.
 
 
 
----
+## Directory Structure
 
-## Admin Capabilities
+```
+/pune-flood-prediction
+├── collect_data.py
+├── train_model.py
+├── predict.py
+├── data/
+│   └── (collected CSVs, rolling DB)
+├── models/
+│   └── (joblib/tf_model.pkl)
+├── requirements.txt
+├── README.md
+└── .env (sample config)
+```
 
-Admins are essential for system management and have the following controls:
 
-- Manage **Users** and roles (invite, remove, reset credentials).
-- Add, edit, or remove **Rooms**; adjust availability or mark for maintenance.
-- Approve, modify, or delete **Bookings** (including for special requests).
-- Review **Booking Logs**, audit changes, and generate detailed reports.
-- Update **System Settings** (booking rules, notification policies).
 
----
+## Extending and Future Scope
 
-## Future Enhancements
+- Add chart/dashboard view using Streamlit or Jupyter Notebook
+- Plug in SMS/Telegram/email API for live warnings
+- Expand to multicity or multicriteria flooding (severity/impact/loss)
+- Integrate crowdsourced rainfall or IoT sensors as new data streams
 
-- **Mobile App Integration:** React Native or PWA for on-the-go booking.
-- **Advanced Analytics:** Visualize bottlenecks, predict demand using ML modules.
-- **Resource Optimization:** Automatic suggestions for room assignments based on past trends.
-- **Custom Notifications:** SMS or in-app notifications for all stakeholders.
-- **Multi-language Support:** For global user accessibility.
 
----
-
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue to discuss the intended feature.
-
-Please make sure to update tests as appropriate.
-
----
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
 
----
+
 
 ## Contact
 
-For questions, suggestions, or to report bugs, contact [sarathi062023@gmail.com].
+For feedback, bugs, or to contribute data connectors:  
+**your-email@example.com**
+
+
+
+Replace `your-email@example.com` and any placeholders as needed.  
+This README is fully pipeline-focused—no user types/roles/UI separation, matching your project's technical scope!
+
+[1](https://github.com/othneildrew/Best-README-Template)
+[2](https://www.makeareadme.com)
+[3](https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/)
+[4](https://gist.github.com/ramantehlan/602ad8525699486e097092e4158c5bf1)
+[5](https://www.drupal.org/docs/develop/managing-a-drupalorg-theme-module-or-distribution-project/documenting-your-project/readmemd-template)
+[6](https://eheidi.dev/tech-writing/20221212_documentation-101/)
+[7](https://www.thegooddocsproject.dev/template/readme)
+[8](https://readme.so)
+[9](https://www.reddit.com/r/learnprogramming/comments/vxfku6/how_to_write_a_readme/)
