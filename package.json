@@ -2,7 +2,7 @@
   "name": "roombooking",
   "version": "0.1.0",
   "private": true,
-    "homepage": "https://Sarathi062.github.io/Flood-Prediction",
+  "homepage": "https://Sarathi062.github.io/Flood-Prediction",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -13,10 +13,12 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.11.0",
+    "framer-motion": "^12.23.24",
     "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-leaflet": "^5.0.0",
+    "react-router-dom": "^7.9.4",
     "react-scripts": "5.0.1",
     "recharts": "^3.1.2",
     "web-vitals": "^2.1.4"

@@ -139,12 +139,9 @@ const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
       {/* Header */}
-      <AppBar position="static" sx={{ background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }}>
-        <Toolbar>
-          <WaterDropIcon sx={{ mr: 2 }} />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            🌊 Flood Prediction Dashboard
-          </Typography>
+      {/* <AppBar position="static" sx={{ background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }}> */}
+        <Toolbar sx={{display: "flex", alignContent: "center", justifyContent: "center" }}>
+         
           <Tooltip title="Refresh">
             <IconButton color="inherit" onClick={fetchPredictions} disabled={loading}><RefreshIcon /></IconButton>
           </Tooltip>
@@ -160,12 +157,12 @@ const Dashboard = () => {
             </IconButton>
           </Tooltip>
           <Box sx={{ ml: 2 }}>
-            <Typography variant="caption" color="#e0e7ef" sx={{ fontWeight: 400 }}>
+            <Typography variant="caption" color="#09090aff" sx={{ fontWeight: 400 }}>
               Last updated: {lastUpdate.toLocaleTimeString()}
             </Typography>
           </Box>
         </Toolbar>
-      </AppBar>
+      {/* </AppBar> */}
 
       {/* Main */}
       <Container maxWidth="xl" sx={{ mt: 3, mb: 3 }}>
@@ -183,7 +180,7 @@ const Dashboard = () => {
             <Paper sx={{ p: 2, height: 600, width: "100%" }}>
               {/* Map section */}
               <Typography variant="h6" gutterBottom sx={{width: "100%"
-              }}>🗺️ Flood Risk Zones.........................</Typography>
+              }}>Flood Risk Zones</Typography>
               {loading ? (
                 <Box sx={{
                   display: "flex", justifyContent: "center",
@@ -237,7 +234,7 @@ const Dashboard = () => {
               <Grid item xs={12}>
                 <Card>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom>📊 Status Overview ({locations.length} locations)</Typography>
+                    <Typography variant="h6" gutterBottom>Status Overview ({locations.length} locations)</Typography>
                     {locations.slice(0, 1).map(loc => (
                       <Box key={loc.location} sx={{ mb: 1 }}>
                         <Typography variant="body2" color="textSecondary">
@@ -326,7 +323,7 @@ const Dashboard = () => {
         {/* Bottom Forecast & Placeholders */}
         <Box sx={{ mt: 6 }}>
           <Typography variant="h6" gutterBottom>
-            🔮 7-Day Forecast for All Locations
+            7-Day Forecast for All Locations
           </Typography>
           <Grid container spacing={2}>
             {locations.map(loc => (
