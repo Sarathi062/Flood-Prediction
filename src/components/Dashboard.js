@@ -1,19 +1,47 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  AppBar, Toolbar, Typography, Grid, Paper, Card, CardContent, Box,
-  Chip, Alert, CircularProgress, IconButton, Snackbar, Container, Tooltip, Divider, Avatar, Tabs, Tab
+  Typography,
+  Paper,
+  Card,
+  CardContent,
+  Box,
+  Chip,
+  Alert,
+  Snackbar,
+  Container,
+  Divider,
+  Tabs,
+  Tab,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  LinearProgress,
 } from "@mui/material";
+
 import {
-  Refresh as RefreshIcon, Notifications as NotificationsIcon, WaterDrop as WaterDropIcon,
-  Cloud as CloudIcon, Warning as WarningIcon, Chat as ChatIcon, Comment as CommentIcon
-} from "@mui/icons-material";
-import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RTooltip,
+  ResponsiveContainer,
+  Legend,
+  Area,
+  AreaChart,
+} from "recharts";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import axios from "axios";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RTooltip, ResponsiveContainer } from "recharts";
 
-// Leaflet default icon fix
+import Predictions from "./Predictions";
+import ModelLSTM from "./ModelLSTM";
+import Alerts from "./Alerts";
+import Maps from "./Maps";
+
+// Leaflet marker fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -21,356 +49,428 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// Dummy widgets - replace with real logic/data as ready
-const DummyModule = ({ title, desc, icon }) => (
-  <Card sx={{ mb: 2, bgcolor: "#f1f5f9" }}>
-    <CardContent>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        {icon} <Typography variant="h6" sx={{ ml: 1, flexGrow: 1 }}>{title}</Typography>
-      </Box>
-      <Typography variant="body2" color="textSecondary">{desc}</Typography>
-      <Box sx={{ mt: 2 }}><Typography variant="caption" sx={{ color: "#aaa" }}>Coming soon</Typography></Box>
-    </CardContent>
-  </Card>
-);
+// Static data
+const STATIC_DATA = {
+  stations: [
+    {
+      location: "Mulshi Dam",
+      coordinates: { lat: 18.7298, lng: 73.6462 },
+      currentDischarge: 145.3,
+      rainfall24h: 12.5,
+      riskLevel: "Safe",
+      floodForecast: [
+        {
+          date: "2025-11-11",
+          rainfall: 18.2,
+          estimatedDischarge: 168.7,
+          releaseProbability: 0.52,
+          riskLevel: "Watch",
+        },
+        {
+          date: "2025-11-12",
+          rainfall: 24.1,
+          estimatedDischarge: 195.2,
+          releaseProbability: 0.78,
+          riskLevel: "Warning",
+        },
+        {
+          date: "2025-11-13",
+          rainfall: 15.3,
+          estimatedDischarge: 172.5,
+          releaseProbability: 0.65,
+          riskLevel: "Watch",
+        },
+      ],
+    },
+    {
+      location: "Khadakwasla Dam",
+      coordinates: { lat: 18.3534, lng: 73.8341 },
+      currentDischarge: 120.5,
+      rainfall24h: 8.3,
+      riskLevel: "Safe",
+      floodForecast: [
+        {
+          date: "2025-11-11",
+          rainfall: 14.1,
+          estimatedDischarge: 142.3,
+          releaseProbability: 0.38,
+          riskLevel: "Safe",
+        },
+        {
+          date: "2025-11-12",
+          rainfall: 21.5,
+          estimatedDischarge: 175.8,
+          releaseProbability: 0.65,
+          riskLevel: "Warning",
+        },
+        {
+          date: "2025-11-13",
+          rainfall: 18.9,
+          estimatedDischarge: 165.2,
+          releaseProbability: 0.58,
+          riskLevel: "Watch",
+        },
+      ],
+    },
+    {
+      location: "Panshet Dam",
+      coordinates: { lat: 18.2245, lng: 74.0267 },
+      currentDischarge: 98.4,
+      rainfall24h: 6.2,
+      riskLevel: "Safe",
+      floodForecast: [
+        {
+          date: "2025-11-11",
+          rainfall: 10.5,
+          estimatedDischarge: 115.3,
+          releaseProbability: 0.28,
+          riskLevel: "Safe",
+        },
+        {
+          date: "2025-11-12",
+          rainfall: 19.2,
+          estimatedDischarge: 152.6,
+          releaseProbability: 0.55,
+          riskLevel: "Warning",
+        },
+        {
+          date: "2025-11-13",
+          rainfall: 12.8,
+          estimatedDischarge: 128.9,
+          releaseProbability: 0.42,
+          riskLevel: "Safe",
+        },
+      ],
+    },
+  ],
+  kpis: {
+    criticalStations: 1,
+    alertsPublished: 1247,
+    forecastSkill: 91.2,
+    atRiskPopulation: "2.4M",
+  },
+  lstmConfig: {
+    architecture: "2-Layer LSTM (128 units) → Dense → Quantile Heads",
+    inputWindow: "72 hours (stride: 6h)",
+    features: [
+      "Rainfall (24h)",
+      "Upstream Gauge",
+      "Dam Outflow",
+      "Soil Moisture",
+      "NDVI",
+    ],
+    trainingSpan: "2020–2024",
+    rmse: "8.34 cm",
+    picp: "91.2%",
+    leadTime: "±24h",
+  },
+  modelHealth: {
+    dataCompleteness: 98.7,
+    psi: 0.08,
+    calibrationError: 3.2,
+  },
+  featureImportance: [
+    { feature: "Rainfall (24h)", importance: 34 },
+    { feature: "Upstream Gauge", importance: 28 },
+    { feature: "Dam Outflow", importance: 20 },
+    { feature: "Soil Moisture", importance: 12 },
+    { feature: "NDVI", importance: 6 },
+  ],
+  dataQuality: [
+    {
+      source: "IMD (Rainfall)",
+      lastUpdate: "2025-11-11 23:45",
+      lagMin: 5,
+      completeness: 99.8,
+      status: "healthy",
+    },
+    {
+      source: "CWC Gauges",
+      lastUpdate: "2025-11-11 23:52",
+      lagMin: 2,
+      completeness: 98.5,
+      status: "healthy",
+    },
+    {
+      source: "Dam Telemetry",
+      lastUpdate: "2025-11-11 23:50",
+      lagMin: 3,
+      completeness: 97.2,
+      status: "warning",
+    },
+    {
+      source: "Satellite (NDVI)",
+      lastUpdate: "2025-11-11 12:00",
+      lagMin: 720,
+      completeness: 95.0,
+      status: "info",
+    },
+  ],
+  alertsStats: {
+    totalPublished: 1247,
+    acknowledged: 1198,
+    retried: 42,
+    failed: 7,
+  },
+  channels: [
+    { name: "SMS", count: 487, status: "healthy" },
+    { name: "WhatsApp", count: 523, status: "healthy" },
+    { name: "Email", count: 198, status: "healthy" },
+    { name: "IVR", count: 39, status: "warning" },
+  ],
+  alertRules: [
+    {
+      condition: "Pred >= Warning (6h Lead)",
+      topic: "flood/alerts/maharashtra/pune/warning",
+      channels: "SMS, Email",
+      escalation: "District Authority",
+    },
+    {
+      condition: "Pred >= Danger (3h Lead)",
+      topic: "flood/alerts/maharashtra/pune/danger",
+      channels: "SMS, WhatsApp, IVR",
+      escalation: "State Control Room",
+    },
+    {
+      condition: "Data Drift Detected",
+      topic: "flood/system/model/drift",
+      channels: "Email",
+      escalation: "Ops Team + Retrain",
+    },
+  ],
+};
 
-const AIInsightsCard = ({ insight }) => (
-  <Card sx={{ mb: 2, bgcolor: "#eaf6fb" }}>
-    <CardContent>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <ChatIcon color="primary" sx={{ mr: 1 }} />
-        <Typography variant="h6">AI Insights</Typography>
-      </Box>
-      <Divider sx={{ my: 1 }} />
-      <Typography variant="body2">{insight}</Typography>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="caption" color="primary">Generated by AI - {new Date().toLocaleTimeString()}</Typography>
-      </Box>
-    </CardContent>
-  </Card>
-);
-
-const EventLog = ({ events }) => (
-  <Card sx={{ mb: 2 }}>
+// Forecast Card Component
+const ForecastCard = ({ station, onCardClick }) => (
+  <Card
+    sx={{
+      height: "100%",
+      cursor: "pointer",
+      transition: "0.3s",
+      "&:hover": { boxShadow: 4, transform: "translateY(-4px)" },
+    }}
+    onClick={() => onCardClick(station)}
+  >
     <CardContent>
       <Typography variant="h6" gutterBottom>
-        📜 Event Log (Recent)
+        {station.location}
       </Typography>
-      {events.length === 0 ? (
-        <Typography variant="body2" color="textSecondary">No events yet</Typography>
-      ) : (
-        events.map((ev, i) => (
-          <Box key={i} sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <WarningIcon sx={{ color: ev.type === "warning" ? "#ff9800" : "#4caf50", fontSize: 16 }} />
-            <Typography variant="caption">{ev.time}</Typography>
-            <Typography variant="body2" sx={{ ml: 1 }}>{ev.message}</Typography>
-          </Box>
-        ))
-      )}
+      <Divider sx={{ my: 1 }} />
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+        <Typography variant="body2" color="textSecondary">
+          Discharge:
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {station.currentDischarge} m³/s
+        </Typography>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="body2" color="textSecondary">
+          Rainfall (24h):
+        </Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {station.rainfall24h} mm
+        </Typography>
+      </Box>
+      <Chip
+        label={station.riskLevel}
+        color={
+          station.riskLevel === "Safe"
+            ? "success"
+            : station.riskLevel === "Watch"
+            ? "warning"
+            : "error"
+        }
+        size="small"
+        sx={{ mb: 1 }}
+      />
+      <Box sx={{ height: 120, width: 390, mt: 2 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={station.floodForecast}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+            <YAxis tick={{ fontSize: 10 }} />
+            <RTooltip />
+            <Line
+              type="monotone"
+              dataKey="estimatedDischarge"
+              stroke="#1976d2"
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Box>
     </CardContent>
   </Card>
+);
+
+// Forecast Detail Dialog
+const ForecastDetailDialog = ({ open, station, onClose }) => (
+  <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <DialogTitle>{station?.location} - 3-Day Forecast</DialogTitle>
+    <DialogContent>
+      {station?.floodForecast.map((day, idx) => (
+        <Paper key={idx} sx={{ p: 2, mb: 1, bgcolor: "#f5f5f5" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {day.date}
+            </Typography>
+            <Chip
+              label={day.riskLevel}
+              size="small"
+              color={
+                day.riskLevel === "Safe"
+                  ? "success"
+                  : day.riskLevel === "Watch"
+                  ? "warning"
+                  : "error"
+              }
+            />
+          </Box>
+          <Typography variant="caption" display="block">
+            Rainfall: {day.rainfall} mm
+          </Typography>
+          <Typography variant="caption" display="block">
+            Discharge: {day.estimatedDischarge} m³/s
+          </Typography>
+          <Typography variant="caption" display="block">
+            Release Probability: {(day.releaseProbability * 100).toFixed(1)}%
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={day.releaseProbability * 100}
+            sx={{ mt: 1 }}
+          />
+        </Paper>
+      ))}
+    </DialogContent>
+  </Dialog>
 );
 
 // Main Dashboard
 const Dashboard = () => {
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [alerts, setAlerts] = useState([]);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [locations, setLocations] = useState(STATIC_DATA.stations);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+  const [selectedStation, setSelectedStation] = useState(null);
+  const [forecastDialogOpen, setForecastDialogOpen] = useState(false);
 
-  // Dummy data for advanced cards and placeholders
-  const dummyEvents = [
-    { type: "warning", time: "6:45 PM", message: "Discharge spiked at Riverside" },
-    { type: "info", time: "6:30 PM", message: "Heavy rainfall started at Baner area" }
-  ];
-
-  const aiDummyText = "AI detected a surge in rainfall at Baner with matching discharge increase at downstream locations. Review risk thresholds for updated forecast recommendations.";
-
-  // API base
-  const API_BASE_URL = process.env.REACT_APP_DEP_API_URL || "http://localhost:3001";
-
-  // Fetch predictions
-  const fetchPredictions = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(`${API_BASE_URL}/api/predict-flood`);
-      if (res.data?.success && Array.isArray(res.data.data)) {
-        setLocations(res.data.data);
-        const allAlerts = [];
-        res.data.data.forEach(loc =>
-          loc.floodForecast
-            .filter(f => f.riskLevel === "Red Alert" || f.riskLevel === "Warning")
-            .forEach(forecast =>
-              allAlerts.push({ id: `${loc.location}-${forecast.date}`, location: loc.location, date: forecast.date, riskLevel: forecast.riskLevel })));
-        setAlerts(allAlerts.slice(-5).reverse());
-      }
-      setLastUpdate(new Date());
-    } catch {
-      setSnackbar({ open: true, message: "Failed to fetch predictions" });
-      setLocations([]);
-    } finally {
-      setLoading(false);
+  const getRiskColor = (level) => {
+    switch (level) {
+      case "Safe":
+        return "#4caf50";
+      case "Watch":
+        return "#ff9800";
+      case "Warning":
+        return "#ff6f00";
+      default:
+        return "#f44336";
     }
   };
 
-  useEffect(() => {
-    fetchPredictions();
-    const interval = setInterval(fetchPredictions, 300000);
-    return () => clearInterval(interval);
-  }, []);
+  const alertCount = locations.filter((loc) =>
+    loc.floodForecast.some(
+      (f) => f.riskLevel === "Warning" || f.riskLevel === "Danger"
+    )
+  ).length;
 
-  const getRiskColor = (level) =>
-    level === "Safe" ? "#4caf50" : level === "Warning" ? "#ff9800" : level === "Red Alert" ? "#f44336" : "#bdbdbd";
-  const getRiskChipColor = (level) =>
-    level === "Safe" ? "success" : level === "Warning" ? "warning" : level === "Red Alert" ? "error" : "default";
-
-  // Flattened forecast for charts
-  const chartDataForLocation = (loc) =>
-    loc?.floodForecast ? loc.floodForecast.map(day => ({
-      date: day.date,
-      rainfall: parseFloat(day.rainfall),
-      discharge: day.estimatedDischarge ?? 0,
-      probability: day.releaseProbability ?? 0,
-      riskLevel: day.riskLevel,
-    })) : [];
+  const theme = {
+    bgcolor: darkMode ? "#1a1a2e" : "#f5f5f5",
+    paper: darkMode ? "#16213e" : "#ffffff",
+    text: darkMode ? "#eaeaea" : "#000000",
+    border: darkMode ? "#0f3460" : "#e0e0e0",
+    accent: darkMode ? "#e94560" : "#1976d2",
+  };
 
   return (
-    <Box sx={{ flexGrow: 1, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
-      {/* Header */}
-      {/* <AppBar position="static" sx={{ background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" }}> */}
-        <Toolbar sx={{display: "flex", alignContent: "center", justifyContent: "center" }}>
-         
-          <Tooltip title="Refresh">
-            <IconButton color="inherit" onClick={fetchPredictions} disabled={loading}><RefreshIcon /></IconButton>
-          </Tooltip>
-          <Tooltip title="Alerts">
-            <IconButton color="inherit"><NotificationsIcon />
-              {alerts.length > 0 && (
-                <Box sx={{
-                  position: "absolute", top: 8, right: 8, bgcolor: "red",
-                  borderRadius: "50%", width: 16, height: 16, display: "flex",
-                  alignItems: "center", justifyContent: "center", fontSize: 10, color: "white",
-                }}>{alerts.length}</Box>
-              )}
-            </IconButton>
-          </Tooltip>
-          <Box sx={{ ml: 2 }}>
-            <Typography variant="caption" color="#09090aff" sx={{ fontWeight: 400 }}>
-              Last updated: {lastUpdate.toLocaleTimeString()}
-            </Typography>
-          </Box>
-        </Toolbar>
-      {/* </AppBar> */}
-
-      {/* Main */}
-      <Container maxWidth="xl" sx={{ mt: 3, mb: 3 }}>
-        {/* Alert */}
-        {alerts.length > 0 && (
-          <Alert severity="error" icon={<WarningIcon />} sx={{ mb: 2 }}>
-            <strong>Critical:</strong>{" "}
-            {alerts[0].location} on {alerts[0].date} ({alerts[0].riskLevel})
+    <Box
+      sx={{
+        bgcolor: theme.bgcolor,
+        minHeight: "100vh",
+        color: theme.text,
+        transition: "0.3s",
+      }}
+    >
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        {/* Alert Banner */}
+        {alertCount > 0 && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <strong>⚠️ Active Alert:</strong> {alertCount} station(s) showing
+            Warning/Danger level forecasts
           </Alert>
         )}
 
-        <Grid container spacing={3}>
-          {/* Main Map + Details */}
-          {/* <Grid item xs={12} lg={8}> */}
-            <Paper sx={{ p: 2, height: 600, width: "100%" }}>
-              {/* Map section */}
-              <Typography variant="h6" gutterBottom sx={{width: "100%"
-              }}>Flood Risk Zones</Typography>
-              {loading ? (
-                <Box sx={{
-                  display: "flex", justifyContent: "center",
-                  alignItems: "center", height: 480, width: "100%"
-                }}><CircularProgress /></Box>
-              ) : (
-                <MapContainer center={[18.5204, 73.8567]} zoom={12}
-                  style={{ height: "510px", width: "100%", borderRadius: 8 }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; OpenStreetMap contributors" style={{width: "90%"}} />
-                  {locations.map(loc => (
-                    <Circle
-                      key={loc.location}
-                      center={[loc.coordinates.lat, loc.coordinates.lng]}
-                      radius={700}
-                      pathOptions={{
-                        color: getRiskColor(loc.floodForecast?.[0]?.riskLevel || "Safe"),
-                        fillColor: getRiskColor(loc.floodForecast?.[0]?.riskLevel || "Safe"),
-                        fillOpacity: 0.4, weight: 2,
-                      }}
-                      eventHandlers={{
-                        click: () => setSelectedLocation(loc),
-                      }}
-                    >
-                      <Popup>
-                        <Box sx={{ minWidth: 200 }}>
-                          <Typography variant="h6" gutterBottom>{loc.location}</Typography>
-                          <Typography variant="body2"><strong>Risk Today:</strong>{" "}
-                            <Chip
-                              size="small"
-                              label={loc.floodForecast?.[0]?.riskLevel || "Unknown"}
-                              color={getRiskChipColor(loc.floodForecast?.[0]?.riskLevel)}
-                            /></Typography>
-                          <Typography variant="body2"><strong>Lat/Lng:</strong> {loc.coordinates.lat},{loc.coordinates.lng}</Typography>
-                          <button style={{
-                            marginTop: 9, padding: "6px 12px", background: "#1976d2", color: "white", border: "none",
-                            borderRadius: 4, cursor: "pointer"
-                          }} onClick={() => setSelectedLocation(loc)}>Show Details</button>
-                        </Box>
-                      </Popup>
-                    </Circle>
-                  ))}
-                </MapContainer>
-              )}
-            </Paper>
-          {/* </Grid> */}
-          {/* Sidebar */}
-          <Grid item xs={12} lg={4}>
-            <Grid container spacing={2}>
-              {/* Location & status cards */}
-              <Grid item xs={12}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>Status Overview ({locations.length} locations)</Typography>
-                    {locations.slice(0, 1).map(loc => (
-                      <Box key={loc.location} sx={{ mb: 1 }}>
-                        <Typography variant="body2" color="textSecondary">
-                          Location: <b>{loc.location}</b>
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                          <CloudIcon sx={{ mr: 1, color: "#2196f3" }} />
-                          <Typography variant="body2">Rainfall Today: {loc.floodForecast?.[0]?.rainfall || "--"} mm</Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                          <WaterDropIcon sx={{ mr: 1, color: "#03a9f4" }} />
-                          <Typography variant="body2">Discharge: {loc.floodForecast?.[0]?.estimatedDischarge || "--"} m³/s</Typography>
-                        </Box>
-                        <Typography variant="body2">
-                          Probability: {(loc.floodForecast?.[0]?.releaseProbability * 100 || 0).toFixed(0)}%
-                        </Typography>
-                        <Chip
-                          label={loc.floodForecast?.[0]?.riskLevel?.toUpperCase() || "UNKNOWN"}
-                          color={getRiskChipColor(loc.floodForecast?.[0]?.riskLevel)}
-                          size="small" sx={{ mt: 1 }}
-                        />
-                      </Box>
-                    ))}
-                    <Typography variant="caption" color="textSecondary">
-                      Last updated: {lastUpdate.toLocaleTimeString()}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-              {/* AI Insights (dummy) */}
-              {/* <Grid item xs={12}><AIInsightsCard insight={aiDummyText} /></Grid> */}
-              {/* Chart card */}
-              {/* <Grid item xs={12}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>📈 7-Day Rainfall vs Discharge</Typography>
-                    {locations.length > 0 ? (
-                      <ResponsiveContainer width="100%" height={180}>
-                        <AreaChart data={chartDataForLocation(locations[0])}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                          <YAxis tick={{ fontSize: 11 }} />
-                          <RTooltip />
-                          <Area
-                            type="monotone"
-                            dataKey="rainfall"
-                            stroke="#2196f3"
-                            fill="#e3f2fd"
-                            name="Rainfall [mm]"
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="discharge"
-                            stroke="#f44336"
-                            fill="#ffebee"
-                            name="Discharge [m³/s]"
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <Typography variant="body2" color="textSecondary">No data</Typography>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid> */}
-              {/* Event Log & Collaboration (dummy, future) */}
-              {/* <Grid item xs={12}><EventLog events={dummyEvents} /></Grid> */}
-              {/* <Grid item xs={12}>
-                <DummyModule
-                  title="Collaboration/Notes"
-                  icon={<CommentIcon color="action" />}
-                  desc="Collaborative notes and discussion area for each forecast/location."
-                />
-              </Grid> */}
-              {/* <Grid item xs={12}>
-                <DummyModule
-                  title="Maintenance & Camera"
-                  icon={<WaterDropIcon color="primary" />}
-                  desc="Upcoming: Sensor maintenance, camera integrations, and live feeds from flood monitoring sites."
-                />
-              </Grid> */}
-            </Grid>
-          </Grid>
-        </Grid>
+        {/* Tabs */}
+        <Paper
+          sx={{ bgcolor: theme.paper, borderRadius: 2, overflow: "hidden" }}
+        >
+          <Tabs
+            value={tabValue}
+            onChange={(e, newValue) => setTabValue(newValue)}
+            sx={{ borderBottom: `1px solid ${theme.border}` }}
+          >
+            <Tab label="📊 Predictions" />
+            <Tab label="🤖 Model & LSTM" />
+            <Tab label="📡 Data Quality" />
+            <Tab label="🚨 Alerts Ops" />
+            <Tab label="🗺️ Map" />
+          </Tabs>
 
-        {/* Bottom Forecast & Placeholders */}
-        <Box sx={{ mt: 6 }}>
-          <Typography variant="h6" gutterBottom>
-            7-Day Forecast for All Locations
-          </Typography>
-          <Grid container spacing={2}>
-            {locations.map(loc => (
-              <Grid item xs={12} md={6} lg={4} key={loc.location}>
-                <Card>
-                  <CardContent>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>{loc.location}</Typography>
-                    {loc.floodForecast && loc.floodForecast.length > 0 ? (
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                        {loc.floodForecast.map((day, idx) => (
-                          <Paper key={day.date}
-                            sx={{ background: "#ecf1f8", borderRadius: 2, display: "flex", alignItems: "center", px: 2, py: 0.5, mb: 0.5 }}>
-                            <Box sx={{ flexGrow: 1 }}>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                                {day.date}
-                              </Typography>
-                            </Box>
-                            <Chip size="small"
-                              label={day.riskLevel}
-                              color={getRiskChipColor(day.riskLevel)}
-                              sx={{ mr: 1 }}
-                            />
-                            <Typography variant="body2" sx={{ minWidth: 70, textAlign: "right" }}>
-                              {day.rainfall} mm
-                            </Typography>
-                            <Typography variant="caption" sx={{ minWidth: 56, textAlign: "center", color: "#666", opacity: 0.8 }}>
-                              {Math.round((day.releaseProbability || 0) * 100)}%
-                            </Typography>
-                            <Typography variant="body2" sx={{ minWidth: 70, textAlign: "right" }}>
-                              {day.estimatedDischarge?.toFixed?.(1) ?? "--"} m³/s
-                            </Typography>
-                          </Paper>
-                        ))}
-                      </Box>
-                    ) : (
-                      <Typography variant="body2" color="textSecondary">No forecast data</Typography>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-            {/* Dummy placeholders: add your other module cards here */}
-            <Grid item xs={12} md={6} lg={4}><DummyModule title="Satellite Flood Mapping" icon={<CloudIcon />} desc="High-res overlays of current flood extent." /></Grid>
-            <Grid item xs={12} md={6} lg={4}><DummyModule title="3D Impact Simulation" icon={<WaterDropIcon />} desc="Visualize possible future flood impact in 3D." /></Grid>
-          </Grid>
-        </Box>
+          {/* Tab 1: Predictions */}
+
+          <Predictions
+            tabValue={tabValue}
+            locations={locations}
+            setSelectedStation={setSelectedStation}
+            setForecastDialogOpen={setForecastDialogOpen}
+          />
+          {/* Tab 2: Model & LSTM */}
+          <ModelLSTM
+            tabValue={tabValue}
+            locations={locations}
+            setSelectedStation={setSelectedStation}
+            setForecastDialogOpen={setForecastDialogOpen}
+            darkMode={darkMode}
+          />
+
+          {/* Tab 4: Alerts Ops */}
+          <Alerts
+            tabValue={tabValue}
+            locations={locations}
+            setSelectedStation={setSelectedStation}
+            setForecastDialogOpen={setForecastDialogOpen}
+            loading={loading}
+            getRiskColor={getRiskColor}
+            darkMode={darkMode}
+          />
+
+          {/* Tab 5: Map */}
+          <Maps
+            tabValue={tabValue}
+            locations={locations}
+            setSelectedStation={setSelectedStation}
+            setForecastDialogOpen={setForecastDialogOpen}
+            loading={loading}
+            getRiskColor={getRiskColor}
+            darkMode={darkMode}
+            setLocations={setLocations}
+            setLoading={setLoading}
+            setLastUpdate={setLastUpdate}
+            setSnackbar={setSnackbar}
+          />
+        </Paper>
       </Container>
+
+      {/* Forecast Dialog */}
+      <ForecastDetailDialog
+        open={forecastDialogOpen}
+        station={selectedStation}
+        onClose={() => setForecastDialogOpen(false)}
+      />
 
       {/* Snackbar */}
       <Snackbar
