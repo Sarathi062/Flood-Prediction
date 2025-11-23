@@ -47,7 +47,7 @@ export default function Nav() {
                     <Box sx={{ display: "flex", gap: 2 }}>
                         <Button
                             variant="contained"
-                            onClick={() => navigate("/Flood-Prediction/dashboard")}
+                            onClick={() => navigate("/dashboard")}
                             sx={{
                                 textTransform: "none",
                                 background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
