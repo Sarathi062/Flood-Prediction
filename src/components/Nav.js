@@ -37,7 +37,7 @@ export default function Nav() {
                                 display: { xs: "none", sm: "block" },
                                 cursor: "pointer"
                             }}
-                            onClick={() => navigate("/Flood-Prediction")}
+                            onClick={() => navigate("/")}
                         >
                             FloodGuard AI
                         </Typography>
