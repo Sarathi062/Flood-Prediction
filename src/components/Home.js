@@ -81,7 +81,7 @@ const Home = () => {
             {/* <Box sx={{ display: "flex", gap: 2 }}> */}
               {/* <Button
                 variant="contained"
-                onClick={() => navigate("/Flood-Prediction/dashboard")}
+                onClick={() => navigate("/dashboard")}
                 sx={{
                   textTransform: "none",
                   background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
@@ -183,7 +183,7 @@ const Home = () => {
                     variant="contained"
                     size="large"
                     endIcon={<ArrowForwardIcon />}
-                    onClick={() => navigate("/Flood-Prediction/dashboard")}
+                    onClick={() => navigate("/dashboard")}
                     sx={{
                       textTransform: "none",
                       background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
@@ -792,7 +792,7 @@ const Home = () => {
               <Button
                 variant="contained"
                 size="large"
-                onClick={() => navigate("/Flood-Prediction/dashboard")}
+                onClick={() => navigate("/dashboard")}
                 sx={{
                   textTransform: "none",
                   bgcolor: "white",

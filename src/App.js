@@ -24,8 +24,8 @@ function App() {
       <CssBaseline />
       <Nav/>
       <Routes>
-        <Route path="/Flood-Prediction" element={<Home />} />
-        <Route path="/Flood-Prediction/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </ThemeProvider>
   );
