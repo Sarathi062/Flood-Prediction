@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Container, Typography, Button, Grid, Card, CardContent,
-  Paper, Divider, IconButton, useTheme, useMediaQuery, Chip, Avatar
+  Box,
+  Container,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Paper,
+  Divider,
+  IconButton,
+  useTheme,
+  useMediaQuery,
+  Chip,
+  Avatar,
 } from "@mui/material";
 import {
   WaterDrop as WaterDropIcon,
@@ -18,23 +30,25 @@ import {
   GitHub as GitHubIcon,
   LinkedIn as LinkedInIcon,
   Twitter as TwitterIcon,
-  Email as EmailIcon
+  Email as EmailIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion"; // Optional: for animations
-
+import { useUser } from "../hooks/useUser";
 
 const Home = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  
+
+  const { data: user, isLoading, isError } = useUser();
+
   // State for live statistics (can connect to real API)
   const [stats, setStats] = useState({
     locationsMonitored: 15,
     predictionsToday: 342,
     alertsSent: 28,
-    accuracyRate: 94.7
+    accuracyRate: 94.7,
   });
 
   // Simulated counter animation on mount
@@ -57,10 +71,10 @@ const Home = () => {
           py: 2
         }}
       > */}
-        {/* <Container maxWidth="xl"> */}
-          {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}
-            {/* Logo */}
-            {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      {/* <Container maxWidth="xl"> */}
+      {/* <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}> */}
+      {/* Logo */}
+      {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <WaterDropIcon sx={{ fontSize: 32, color: "#1976d2" }} />
               <Typography
                 variant="h5"
@@ -72,14 +86,12 @@ const Home = () => {
                   display: { xs: "none", sm: "block" }
                 }}
               >
-                FloodGuard AI
+                Flood Prediction AI
               </Typography>
             </Box> */}
 
-           
-
-            {/* <Box sx={{ display: "flex", gap: 2 }}> */}
-              {/* <Button
+      {/* <Box sx={{ display: "flex", gap: 2 }}> */}
+      {/* <Button
                 variant="contained"
                 onClick={() => navigate("/dashboard")}
                 sx={{
@@ -92,19 +104,20 @@ const Home = () => {
               >
                 View Dashboard
               </Button> */}
-            {/* </Box> */}
-          {/* </Box> */}
-        {/* </Container> */}
+      {/* </Box> */}
+      {/* </Box> */}
+      {/* </Container> */}
       {/* </Box> */}
 
       {/* ========== HERO SECTION ========== */}
       {/* This is the most important section - captures attention immediately [71][78][84] */}
       <Box
         sx={{
-          background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%)",
+          background:
+            "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #dbeafe 100%)",
           py: { xs: 8, md: 12 },
           position: "relative",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         {/* Background decorative elements */}
@@ -116,11 +129,12 @@ const Home = () => {
             width: 400,
             height: 400,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
-            pointerEvents: "none"
+            background:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
+            pointerEvents: "none",
           }}
         />
-        
+
         <Container maxWidth="lg">
           <Grid container spacing={6} alignItems="center">
             {/* Left: Text Content */}
@@ -137,7 +151,6 @@ const Home = () => {
                   color="primary"
                   sx={{ mb: 2, fontWeight: 600 }}
                 />
-
                 {/* Main Headline - Most critical element [78][84] */}
                 <Typography
                   variant="h1"
@@ -146,22 +159,22 @@ const Home = () => {
                     fontWeight: 800,
                     lineHeight: 1.2,
                     mb: 2,
-                    color: "#1e293b"
+                    color: "#1e293b",
                   }}
                 >
                   Predict Floods Before{" "}
                   <Box
                     component="span"
                     sx={{
-                      background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
+                      background:
+                        "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
                       WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent"
+                      WebkitTextFillColor: "transparent",
                     }}
                   >
                     They Strike
                   </Box>
                 </Typography>
-
                 {/* Subheadline */}
                 <Typography
                   variant="h6"
@@ -169,36 +182,38 @@ const Home = () => {
                     color: "#64748b",
                     mb: 4,
                     lineHeight: 1.6,
-                    fontWeight: 400
+                    fontWeight: 400,
                   }}
                 >
-                  Advanced machine learning models analyze real-time weather data, 
-                  dam releases, and rainfall patterns to provide accurate flood 
-                  predictions for Pune and surrounding areas.
+                  Advanced machine learning models analyze real-time weather
+                  data, dam releases, and rainfall patterns to provide accurate
+                  flood predictions for Pune and surrounding areas.
                 </Typography>
-
                 {/* CTA Buttons - Clear call to action [71][80] */}
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    endIcon={<ArrowForwardIcon />}
-                    onClick={() => navigate("/dashboard")}
-                    sx={{
-                      textTransform: "none",
-                      background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
-                      fontWeight: 600,
-                      px: 4,
-                      py: 1.5,
-                      fontSize: "1.1rem",
-                      boxShadow: "0 8px 24px rgba(30, 64, 175, 0.3)",
-                      "&:hover": {
-                        boxShadow: "0 12px 32px rgba(30, 64, 175, 0.4)"
-                      }
-                    }}
-                  >
-                    Get Started
-                  </Button>
+                  {!user && (
+                    <Button
+                      variant="contained"
+                      size="large"
+                      endIcon={<ArrowForwardIcon />}
+                      onClick={() => navigate("/login")}
+                      sx={{
+                        textTransform: "none",
+                        background:
+                          "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
+                        fontWeight: 600,
+                        px: 4,
+                        py: 1.5,
+                        fontSize: "1.1rem",
+                        boxShadow: "0 8px 24px rgba(30, 64, 175, 0.3)",
+                        "&:hover": {
+                          boxShadow: "0 12px 32px rgba(30, 64, 175, 0.4)",
+                        },
+                      }}
+                    >
+                      Get Started
+                    </Button>
+                  )}
                   <Button
                     variant="outlined"
                     size="large"
@@ -210,14 +225,13 @@ const Home = () => {
                       fontSize: "1.1rem",
                       borderWidth: 2,
                       "&:hover": {
-                        borderWidth: 2
-                      }
+                        borderWidth: 2,
+                      },
                     }}
                   >
                     Learn More
                   </Button>
                 </Box>
-
                 {/* Trust Indicators */}
                 {/* <Box sx={{ mt: 4, display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <Box>
@@ -255,7 +269,7 @@ const Home = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               > */}
-                {/* <Box
+            {/* <Box
                   sx={{
                     position: "relative",
                     width: "100%",
@@ -265,9 +279,9 @@ const Home = () => {
                     justifyContent: "center"
                   }}
                 > */}
-                  {/* Placeholder for hero image/illustration [71][78] */}
-                  {/* You can replace this with an actual illustration or screenshot */}
-                  {/* <Paper
+            {/* Placeholder for hero image/illustration [71][78] */}
+            {/* You can replace this with an actual illustration or screenshot */}
+            {/* <Paper
                     elevation={8}
                     sx={{
                       width: "90%",
@@ -281,16 +295,16 @@ const Home = () => {
                       overflow: "hidden"
                     }}
                   > */}
-                    {/* Simulated dashboard preview */}
-                    {/* <Box sx={{ textAlign: "center", color: "white", p: 4 }}>
+            {/* Simulated dashboard preview */}
+            {/* <Box sx={{ textAlign: "center", color: "white", p: 4 }}>
                       <WaterDropIcon sx={{ fontSize: 120, opacity: 0.3 }} />
                       <Typography variant="h4" sx={{ mt: 2, fontWeight: 600 }}>
                         Dashboard Preview
                       </Typography>
                     </Box> */}
-                    
-                    {/* Floating cards for visual interest */}
-                    {/* <Paper
+
+            {/* Floating cards for visual interest */}
+            {/* <Paper
                       sx={{
                         position: "absolute",
                         top: 20,
@@ -327,9 +341,9 @@ const Home = () => {
                         </Typography>
                       </Box>
                     </Paper> */}
-                  {/* </Paper> */}
-                {/* </Box> */}
-              {/* </motion.div> */}
+            {/* </Paper> */}
+            {/* </Box> */}
+            {/* </motion.div> */}
             {/* </Grid> */}
           </Grid>
         </Container>
@@ -394,18 +408,31 @@ const Home = () => {
           <Box sx={{ textAlign: "center", mb: 8 }}>
             <Typography
               variant="overline"
-              sx={{ color: "#3b82f6", fontWeight: 700, fontSize: "1rem", mb: 1 }}
+              sx={{
+                color: "#3b82f6",
+                fontWeight: 700,
+                fontSize: "1rem",
+                mb: 1,
+              }}
             >
               FEATURES
             </Typography>
             <Typography
               variant="h2"
-              sx={{ fontWeight: 800, mb: 2, fontSize: { xs: "2rem", md: "2.75rem" } }}
+              sx={{
+                fontWeight: 800,
+                mb: 2,
+                fontSize: { xs: "2rem", md: "2.75rem" },
+              }}
             >
-              Why Choose FloodGuard AI?
+              Why Choose Flood Prediction AI?
             </Typography>
-            <Typography variant="h6" color="textSecondary" sx={{ maxWidth: 600, mx: "auto" }}>
-              Our advanced system combines machine learning, real-time data, and 
+            <Typography
+              variant="h6"
+              color="textSecondary"
+              sx={{ maxWidth: 600, mx: "auto" }}
+            >
+              Our advanced system combines machine learning, real-time data, and
               intelligent forecasting to keep communities safe.
             </Typography>
           </Box>
@@ -423,8 +450,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -432,11 +459,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                    background:
+                      "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <SpeedIcon sx={{ fontSize: 32, color: "white" }} />
@@ -444,9 +472,13 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   Real-Time Monitoring
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  Continuous tracking of weather conditions, rainfall levels, and 
-                  dam releases with updates every 5 minutes.
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  Continuous tracking of weather conditions, rainfall levels,
+                  and dam releases with updates every 5 minutes.
                 </Typography>
               </Card>
             </Grid>
@@ -462,8 +494,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -471,11 +503,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+                    background:
+                      "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <AssessmentIcon sx={{ fontSize: 32, color: "white" }} />
@@ -483,8 +516,12 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   AI-Powered Predictions
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  LSTM neural networks analyze historical patterns and current 
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  LSTM neural networks analyze historical patterns and current
                   data to forecast flood risks up to 7 days in advance.
                 </Typography>
               </Card>
@@ -501,8 +538,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -510,11 +547,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                    background:
+                      "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <NotificationsIcon sx={{ fontSize: 32, color: "white" }} />
@@ -522,8 +560,12 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   Instant Alerts
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  Automatic notifications for high-risk situations with detailed 
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  Automatic notifications for high-risk situations with detailed
                   location-specific warnings and recommended actions.
                 </Typography>
               </Card>
@@ -540,8 +582,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -549,11 +591,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                    background:
+                      "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <LocationIcon sx={{ fontSize: 32, color: "white" }} />
@@ -561,8 +604,12 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   Interactive Maps
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  Visual representation of flood risk zones with color-coded 
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  Visual representation of flood risk zones with color-coded
                   markers and detailed location information.
                 </Typography>
               </Card>
@@ -579,8 +626,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -588,11 +635,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                    background:
+                      "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <TrendingUpIcon sx={{ fontSize: 32, color: "white" }} />
@@ -600,8 +648,12 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   Historical Analytics
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  Access to historical data trends, patterns, and insights to 
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  Access to historical data trends, patterns, and insights to
                   improve long-term planning and preparedness.
                 </Typography>
               </Card>
@@ -618,8 +670,8 @@ const Home = () => {
                   transition: "all 0.3s",
                   "&:hover": {
                     transform: "translateY(-8px)",
-                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)"
-                  }
+                    boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
+                  },
                 }}
               >
                 <Box
@@ -627,11 +679,12 @@ const Home = () => {
                     width: 64,
                     height: 64,
                     borderRadius: 2,
-                    background: "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
+                    background:
+                      "linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    mb: 3
+                    mb: 3,
                   }}
                 >
                   <SecurityIcon sx={{ fontSize: 32, color: "white" }} />
@@ -639,8 +692,12 @@ const Home = () => {
                 <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                   Reliable & Secure
                 </Typography>
-                <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                  Built with enterprise-grade security and 99.9% uptime to 
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  sx={{ lineHeight: 1.7 }}
+                >
+                  Built with enterprise-grade security and 99.9% uptime to
                   ensure critical information is always available.
                 </Typography>
               </Card>
@@ -661,12 +718,20 @@ const Home = () => {
           </Typography>
           <Typography
             variant="h2"
-            sx={{ fontWeight: 800, mb: 2, fontSize: { xs: "2rem", md: "2.75rem" } }}
+            sx={{
+              fontWeight: 800,
+              mb: 2,
+              fontSize: { xs: "2rem", md: "2.75rem" },
+            }}
           >
             Three Simple Steps
           </Typography>
-          <Typography variant="h6" color="textSecondary" sx={{ maxWidth: 600, mx: "auto" }}>
-            Our intelligent system works around the clock to keep you informed 
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            sx={{ maxWidth: 600, mx: "auto" }}
+          >
+            Our intelligent system works around the clock to keep you informed
             and prepared.
           </Typography>
         </Box>
@@ -680,25 +745,33 @@ const Home = () => {
                   width: 80,
                   height: 80,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                  background:
+                    "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mb: 3,
-                  mx: { xs: "auto", md: 0 }
+                  mx: { xs: "auto", md: 0 },
                 }}
               >
-                <Typography variant="h3" sx={{ color: "white", fontWeight: 700 }}>
+                <Typography
+                  variant="h3"
+                  sx={{ color: "white", fontWeight: 700 }}
+                >
                   1
                 </Typography>
               </Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                 Data Collection
               </Typography>
-              <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                System continuously collects weather data, rainfall measurements, 
-                and dam release information from multiple sources including OpenWeather 
-                API and sensor networks.
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                sx={{ lineHeight: 1.7 }}
+              >
+                System continuously collects weather data, rainfall
+                measurements, and dam release information from multiple sources
+                including OpenWeather API and sensor networks.
               </Typography>
             </Box>
           </Grid>
@@ -711,24 +784,32 @@ const Home = () => {
                   width: 80,
                   height: 80,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+                  background:
+                    "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mb: 3,
-                  mx: { xs: "auto", md: 0 }
+                  mx: { xs: "auto", md: 0 },
                 }}
               >
-                <Typography variant="h3" sx={{ color: "white", fontWeight: 700 }}>
+                <Typography
+                  variant="h3"
+                  sx={{ color: "white", fontWeight: 700 }}
+                >
                   2
                 </Typography>
               </Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                 AI Analysis
               </Typography>
-              <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                LSTM neural networks process the data, identify patterns, and 
-                generate flood risk predictions with confidence scores for each 
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                sx={{ lineHeight: 1.7 }}
+              >
+                LSTM neural networks process the data, identify patterns, and
+                generate flood risk predictions with confidence scores for each
                 monitored location.
               </Typography>
             </Box>
@@ -742,25 +823,33 @@ const Home = () => {
                   width: 80,
                   height: 80,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                  background:
+                    "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mb: 3,
-                  mx: { xs: "auto", md: 0 }
+                  mx: { xs: "auto", md: 0 },
                 }}
               >
-                <Typography variant="h3" sx={{ color: "white", fontWeight: 700 }}>
+                <Typography
+                  variant="h3"
+                  sx={{ color: "white", fontWeight: 700 }}
+                >
                   3
                 </Typography>
               </Box>
               <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
                 Alerts & Visualization
               </Typography>
-              <Typography variant="body1" color="textSecondary" sx={{ lineHeight: 1.7 }}>
-                Results are displayed on interactive dashboards with color-coded 
-                risk zones. Critical alerts are sent automatically to authorities 
-                and residents in affected areas.
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                sx={{ lineHeight: 1.7 }}
+              >
+                Results are displayed on interactive dashboards with color-coded
+                risk zones. Critical alerts are sent automatically to
+                authorities and residents in affected areas.
               </Typography>
             </Box>
           </Grid>
@@ -773,41 +862,33 @@ const Home = () => {
         sx={{
           background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
           py: 10,
-          color: "white"
+          color: "white",
         }}
       >
         <Container maxWidth="md">
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="h2"
-              sx={{ fontWeight: 800, mb: 3, fontSize: { xs: "2rem", md: "3rem" } }}
+              sx={{
+                fontWeight: 800,
+                mb: 3,
+                fontSize: { xs: "2rem", md: "3rem" },
+              }}
             >
               Ready to Get Started?
             </Typography>
             <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-              Join thousands of users who trust FloodGuard AI to keep their 
-              communities safe from flood disasters.
+              Join thousands of users who trust Flood Prediction AI to keep
+              their communities safe from flood disasters.
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/dashboard")}
-                sx={{
-                  textTransform: "none",
-                  bgcolor: "white",
-                  color: "#1e40af",
-                  fontWeight: 600,
-                  px: 4,
-                  py: 1.5,
-                  fontSize: "1.1rem",
-                  "&:hover": {
-                    bgcolor: "#f8fafc"
-                  }
-                }}
-              >
-                View Live Dashboard
-              </Button>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
               <Button
                 variant="outlined"
                 size="large"
@@ -822,8 +903,8 @@ const Home = () => {
                   borderWidth: 2,
                   "&:hover": {
                     borderWidth: 2,
-                    bgcolor: "rgba(255,255,255,0.1)"
-                  }
+                    bgcolor: "rgba(255,255,255,0.1)",
+                  },
                 }}
               >
                 Contact Us
@@ -840,15 +921,20 @@ const Home = () => {
           <Grid container spacing={4}>
             {/* Brand */}
             <Grid item xs={12} md={4}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <WaterDropIcon sx={{ fontSize: 32 }} />
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  FloodGuard AI
+                  Flood Prediction AI
                 </Typography>
               </Box>
-              <Typography variant="body2" sx={{ mb: 3, opacity: 0.8, lineHeight: 1.7 }}>
-                Advanced flood prediction system powered by machine learning 
-                to protect communities and save lives.
+              <Typography
+                variant="body2"
+                sx={{ mb: 3, opacity: 0.8, lineHeight: 1.7 }}
+              >
+                Advanced flood prediction system powered by machine learning to
+                protect communities and save lives.
               </Typography>
               {/* <Box sx={{ display: "flex", gap: 1 }}>
                 <IconButton sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}>
@@ -950,9 +1036,16 @@ const Home = () => {
 
           <Divider sx={{ my: 4, bgcolor: "rgba(255,255,255,0.1)" }} />
 
-          <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
             <Typography variant="body2" sx={{ opacity: 0.6 }}>
-              © 2025 FloodGuard AI. All rights reserved.
+              © 2025 Flood Prediction AI. All rights reserved.
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.6 }}>
               Made with ❤️ by team Sarathi

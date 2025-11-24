@@ -21,8 +21,7 @@ const TabPanel = ({ children, value, index, ...other }) => (
 );
 
 /* ----------------- API base ----------------- */
-const API_BASE_URL = process.env.REACT_APP_DEP_API_URL || "https://flood-prediction-backend-ycp3.onrender.com";
-
+const API_BASE_URL = process.env.REACT_APP_DEP_API_URL || "http://localhost:3001";
 /* ----------------- Helper to extract lat/lng ----------------- */
 /* Matches your sample: loc.coordinates = { lat, lng } */
 const getLatLng = (loc) => {
@@ -103,7 +102,6 @@ const Maps = ({
 
     try {
       const res = await axios.get(`${API_BASE_URL}/api/predict-flood`);
-      console.log("predict-flood response:", res?.data);
 
       // sample shows data under res.data.data
       const dataArray = res?.data?.data ?? res?.data ?? [];
