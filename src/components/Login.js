@@ -20,7 +20,8 @@ import {
 import { useNavigate } from "react-router-dom";
 
 const BACKEND_URL =
-  process.env.REACT_APP_DEP_API_URL || "http://localhost:3001";
+  process.env.REACT_APP_DEP_API_URL ||
+  "https://flood-prediction-backend-ycp3.onrender.com";
 
 function Login() {
   const navigate = useNavigate();
