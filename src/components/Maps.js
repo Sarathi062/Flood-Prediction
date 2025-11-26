@@ -21,14 +21,20 @@ const TabPanel = ({ children, value, index, ...other }) => (
 );
 
 /* ----------------- API base ----------------- */
-const API_BASE_URL = process.env.REACT_APP_DEP_API_URL || "http://localhost:3001";
+const API_BASE_URL =
+  process.env.REACT_APP_DEP_API_URL ||
+  "https://flood-prediction-backend-ycp3.onrender.com";
 /* ----------------- Helper to extract lat/lng ----------------- */
 /* Matches your sample: loc.coordinates = { lat, lng } */
 const getLatLng = (loc) => {
   if (!loc) return null;
 
   // 1) loc.coordinates = { lat, lng } (your sample)
-  if (loc.coordinates && typeof loc.coordinates === "object" && !Array.isArray(loc.coordinates)) {
+  if (
+    loc.coordinates &&
+    typeof loc.coordinates === "object" &&
+    !Array.isArray(loc.coordinates)
+  ) {
     const lat = Number(loc.coordinates.lat);
     const lng = Number(loc.coordinates.lng);
     if (!Number.isNaN(lat) && !Number.isNaN(lng)) return [lat, lng];
@@ -150,7 +156,8 @@ const Maps = ({
 
   /* Fit map bounds when locations change */
   useEffect(() => {
-    if (!mapRef.current || !Array.isArray(locations) || locations.length === 0) return;
+    if (!mapRef.current || !Array.isArray(locations) || locations.length === 0)
+      return;
     const latLngs = locations.map((l) => getLatLng(l)).filter(Boolean);
     if (latLngs.length > 0) {
       try {
@@ -167,7 +174,14 @@ const Maps = ({
     <TabPanel value={tabValue} index={4}>
       <Paper sx={{ p: 2, height: 600 }}>
         {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
             <CircularProgress />
           </Box>
         ) : (
@@ -198,21 +212,35 @@ const Maps = ({
               const latLng = getLatLng(loc);
               const name = loc.location ?? loc.name ?? `Station ${idx + 1}`;
               // Flood forecast first day may give today's risk; fallback to unknown
-              const todayForecast = Array.isArray(loc.floodForecast) && loc.floodForecast.length > 0 ? loc.floodForecast[0] : null;
-              const risk = todayForecast?.riskLevel ?? loc.riskLevel ?? "Unknown";
+              const todayForecast =
+                Array.isArray(loc.floodForecast) && loc.floodForecast.length > 0
+                  ? loc.floodForecast[0]
+                  : null;
+              const risk =
+                todayForecast?.riskLevel ?? loc.riskLevel ?? "Unknown";
 
               // defensive values for display
-              const discharge = todayForecast?.estimatedDischarge ?? loc.currentDischarge ?? "N/A";
-              const rainfall24h = todayForecast?.rainfall ?? loc.rainfall24h ?? "N/A";
+              const discharge =
+                todayForecast?.estimatedDischarge ??
+                loc.currentDischarge ??
+                "N/A";
+              const rainfall24h =
+                todayForecast?.rainfall ?? loc.rainfall24h ?? "N/A";
               const prob = todayForecast?.releaseProbability ?? 0;
 
               // If coords missing, show fallback Marker at center with note
               if (!latLng) {
                 return (
-                  <Marker key={`fallback-${idx}`} position={[18.5204, 73.8567]} icon={DefaultIcon}>
+                  <Marker
+                    key={`fallback-${idx}`}
+                    position={[18.5204, 73.8567]}
+                    icon={DefaultIcon}
+                  >
                     <Popup>
                       <Typography variant="subtitle1">{name}</Typography>
-                      <Typography variant="body2">Coordinates not available</Typography>
+                      <Typography variant="body2">
+                        Coordinates not available
+                      </Typography>
                     </Popup>
                   </Marker>
                 );
@@ -252,21 +280,32 @@ const Maps = ({
                           label={String(risk)}
                           size="small"
                           color={
-                            risk === "Safe" ? "success" : risk === "Warning" ? "warning" : risk === "Red Alert" ? "error" : "default"
+                            risk === "Safe"
+                              ? "success"
+                              : risk === "Warning"
+                              ? "warning"
+                              : risk === "Red Alert"
+                              ? "error"
+                              : "default"
                           }
                           sx={{ ml: 1 }}
                         />
                       </Typography>
 
                       <Typography variant="body2">
-                        <strong>Discharge:</strong> {discharge === "N/A" ? "N/A" : String(discharge)}
+                        <strong>Discharge:</strong>{" "}
+                        {discharge === "N/A" ? "N/A" : String(discharge)}
                       </Typography>
 
                       <Typography variant="body2">
                         <strong>Rainfall (24h):</strong> {String(rainfall24h)}
                       </Typography>
 
-                      <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        sx={{ mt: 1 }}
+                      >
                         Probability: {Math.round((Number(prob) || 0) * 100)}%
                       </Typography>
 
