@@ -907,7 +907,6 @@ const Home = () => {
                   },
                 }}
               >
-                
                 Contact Us
               </Button>
             </Box>
@@ -925,131 +924,77 @@ const Home = () => {
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
               >
-                <WaterDropIcon sx={{ fontSize: 32 }} />
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                <WaterDropIcon sx={{ fontSize: 30 }} />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Flood Prediction AI
                 </Typography>
               </Box>
+
               <Typography
                 variant="body2"
-                sx={{ mb: 3, opacity: 0.8, lineHeight: 1.7 }}
+                sx={{ opacity: 0.8, maxWidth: 300, lineHeight: 1.6 }}
               >
-                Advanced flood prediction system powered by machine learning to
-                protect communities and save lives.
+                AI-powered flood forecasting system built to protect communities
+                with accurate, real-time predictions.
               </Typography>
-              {/* <Box sx={{ display: "flex", gap: 1 }}>
-                <IconButton sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}>
-                  <GitHubIcon />
-                </IconButton>
-                <IconButton sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}>
-                  <LinkedInIcon />
-                </IconButton>
-                <IconButton sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}>
-                  <TwitterIcon />
-                </IconButton>
-                <IconButton sx={{ color: "white", bgcolor: "rgba(255,255,255,0.1)" }}>
-                  <EmailIcon />
-                </IconButton>
-              </Box> */}
             </Grid>
 
-            {/* Quick Links */}
-            {/* <Grid item xs={6} md={2}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Product
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Features
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Dashboard
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Pricing
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  API
-                </Button>
-              </Box>
-            </Grid> */}
-
-            {/* Resources */}
-            {/* <Grid item xs={6} md={2}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                Resources
-              </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Documentation
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Blog
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Support
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  FAQs
-                </Button>
-              </Box>
-            </Grid> */}
-
-            {/* Company */}
-            {/* <Grid item xs={6} md={2}>
+            {/* Links */}
+            {/* <Grid item xs={12} md={2}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Company
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  About Us
+                <Button color="inherit" sx={{ justifyContent: "flex-start" }}>
+                  About
                 </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
+                <Button color="inherit" sx={{ justifyContent: "flex-start" }}>
                   Contact
                 </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
+                <Button color="inherit" sx={{ justifyContent: "flex-start" }}>
                   Careers
-                </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Press
                 </Button>
               </Box>
             </Grid> */}
 
-            {/* Legal */}
-            {/* <Grid item xs={6} md={2}>
+            <Grid item xs={12} md={2}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Legal
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
+                <Button
+                  color="inherit"
+                  sx={{ justifyContent: "flex-start" }}
+                  onClick={() => navigate("/privacy-policy")}
+                >
                   Privacy Policy
                 </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
+                <Button
+                  color="inherit"
+                  sx={{ justifyContent: "flex-start" }}
+                  onClick={() => navigate("/terms-of-service")}
+                >
                   Terms of Service
                 </Button>
-                <Button sx={{ color: "white", opacity: 0.8, textTransform: "none", justifyContent: "flex-start" }}>
-                  Cookie Policy
-                </Button>
+              
               </Box>
-            </Grid> */}
+            </Grid>
           </Grid>
 
-          <Divider sx={{ my: 4, bgcolor: "rgba(255,255,255,0.1)" }} />
+          <Divider sx={{ my: 4, borderColor: "rgba(255,255,255,0.1)" }} />
 
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               flexWrap: "wrap",
-              gap: 2,
             }}
           >
-            <Typography variant="body2" sx={{ opacity: 0.6 }}>
-              © 2025 Flood Prediction AI. All rights reserved.
+            <Typography variant="body2" sx={{ opacity: 0.7 }}>
+              © 2025 Flood Prediction AI — All rights reserved.
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.6 }}>
-              Made with ❤️ by team Sarathi
+            <Typography variant="body2" sx={{ opacity: 0.7 }}>
+              Built with ❤️ by Team Sarathi
             </Typography>
           </Box>
         </Container>

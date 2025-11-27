@@ -6,6 +6,8 @@ import Home from "./components/Home";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Nav from "./components/Nav";
 import Login from "./components/Login";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsOfService from "./components/TermsOfService";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -58,6 +60,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
       </Routes>
     </ThemeProvider>
   );
