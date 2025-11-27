@@ -32,7 +32,7 @@ export default function Nav() {
   };
   const handleLogout = async () => {
     await axios.delete(
-      "https://flood-prediction-backend-ycp3.onrender.com/api/login/logout",
+      `${process.env.REACT_APP_DEP_API_URL}/api/login/logout`,
       { withCredentials: true }
     );
 

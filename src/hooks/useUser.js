@@ -6,7 +6,7 @@ export const useUser = () => {
     queryKey: ["currentUser"],
     queryFn: async () => {
       const res = await axios.get(
-        "https://flood-prediction-backend-ycp3.onrender.com/api/login/me",
+        `${process.env.REACT_APP_DEP_API_URL}/api/login/me`,
         { withCredentials: true }
       );
       return res.data.user;

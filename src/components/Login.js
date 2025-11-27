@@ -19,9 +19,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL =
-  "https://flood-prediction-backend-ycp3.onrender.com" ||
-  process.env.REACT_APP_DEP_API_URL;
+const BACKEND_URL = process.env.REACT_APP_DEP_API_URL || "";
 
 function Login() {
   const navigate = useNavigate();

@@ -21,9 +21,8 @@ const TabPanel = ({ children, value, index, ...other }) => (
 );
 
 /* ----------------- API base ----------------- */
-const API_BASE_URL =
-  process.env.REACT_APP_DEP_API_URL ||
-  "https://flood-prediction-backend-ycp3.onrender.com";
+const API_BASE_URL = process.env.REACT_APP_DEP_API_URL || "";
+
 /* ----------------- Helper to extract lat/lng ----------------- */
 /* Matches your sample: loc.coordinates = { lat, lng } */
 const getLatLng = (loc) => {
@@ -97,7 +96,7 @@ const Maps = ({
   setLastUpdate,
   setSnackbar,
 }) => {
-  const [localLoading, setLocalLoading] = useState(false);
+  const [nLoading, setLocalLoading] = useState(false);
   const isLoading = typeof loading === "boolean" ? loading : localLoading;
   const mapRef = useRef(null);
 
