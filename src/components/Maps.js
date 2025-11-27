@@ -96,7 +96,7 @@ const Maps = ({
   setLastUpdate,
   setSnackbar,
 }) => {
-  const [nLoading, setLocalLoading] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
   const isLoading = typeof loading === "boolean" ? loading : localLoading;
   const mapRef = useRef(null);
 
