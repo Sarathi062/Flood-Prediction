@@ -1,147 +1,267 @@
-# Pune Flood Prediction System
+# 🌧️ Pune Flood Prediction — Frontend (React)
 
-A machine learning–powered pipeline to forecast flood risk in Pune using real-time weather API data combined with dam, river, and city waterbody levels from open and government sources.
+A modern, responsive React-based dashboard for visualizing real-time flood prediction results, rainfall data, dam levels, alerts, risk indicators, and historical trends for Pune city.
+This frontend consumes the **Flood Prediction Backend API** and renders the live risk output with a clean UI deployed on **AWS Amplify**.
 
+---
 
+## 🚀 Table of Contents
 
-## Table of Contents
+* [Overview](#overview)
+* [Features](#features)
+* [Tech Stack](#tech-stack)
+* [Architecture](#architecture)
+* [Environment Variables](#environment-variables)
+* [Setup & Installation](#setup--installation)
+* [Available Scripts](#available-scripts)
+* [API Integration](#api-integration)
+* [Build & Deployment (AWS Amplify)](#build--deployment-aws-amplify)
+* [Project Structure](#project-structure)
+* [Screenshots](#screenshots)
+* [Future Enhancements](#future-enhancements)
+* [Contributing](#contributing)
+* [License](#license)
+* [Contact](#contact)
 
-- [Overview](#overview)
-- [Features](#features)
-- [Data Sources](#data-sources)
-- [Architecture](#architecture)
-- [Setup](#setup)
-- [Workflow](#workflow)
-- [Directory Structure](#directory-structure)
-- [Extending and Future Scope](#extending-and-future-scope)
-- [License](#license)
-- [Contact](#contact)
+---
 
+## 🌐 Overview
 
+This is the **UI layer** of the Pune Flood Prediction System.
 
-## Overview
+It allows users to:
 
-This project automates the collection, processing, and prediction of flood risk in Pune city. It periodically fetches real-time weather and waterbody data, merges it, and feeds it into a configurable ML model to estimate flood probability and optionally trigger notifications/alerts.
+* View **live weather**, **waterbody levels**, and **risk predictions**
+* Access **real-time API results** from the backend
+* Visualize **graphs, warnings, probability score**
+* Understand **risk zones** and **severity** through easy color-coded indicators
 
+This frontend is fully compatible with your backend deployed at:
 
+```
+https://api.floodprediction.in
+```
 
-## Features
+The site is now **hosted on AWS Amplify**, replacing the older GitHub Pages deployment.
 
-- Periodic data collection from OpenWeather API and open/public water level endpoints
-- Flexible ingestion: combines weather (rain, temp, humidity), dam, river, and optionally city drainage data
-- ML-ready data assembly & storage (CSV or MongoDB)
-- ML model training and pickling for ongoing, retrainable predictions
-- Risk prediction script or API endpoint: input current conditions, receive risk score
-- Alert/threshold logic for triggering notifications or logs
+---
 
+## ✨ Features
 
+* 📊 **Live flood risk indicator** with color-coded UI
+* 🌧️ Real-time weather data (rain, humidity, temperature)
+* 🏞️ Dam/river water level snapshot visualization
+* ⚠️ Alert banners when flood risk crosses thresholds
+* 📱 Fully responsive UI (Tailwind + Material UI / Custom CSS)
+* 🔄 Auto-refresh capability (optional)
+* 🛰️ Backend uptime/status checker
+* 🚀 AWS Amplify–optimized deployment with SSR routing support
+* 🔒 `.env` based secure API integration
 
-## Data Sources
+---
 
-- **Weather:** OpenWeatherMap API -- rainfall, temperature, humidity, pressure, wind
-- **Dams/Rivers:** 
-    - State WRD or Bhima Basin RTDAS for dam levels (Khadakwasla, Panshet, Varasgaon, Mulshi, Temghar)
-    - Central Water Commission (CWC) or RTDAS for river levels (Mutha, Mula, Pavana, Bhima)
-- **Static/Context (optional):**
-    - PMC-published drainage and sewage infrastructure stats (annual/PDF/manual extract)
-- **Historical floods:** From local news, papers, or manual event tagging
+## 🛠️ Tech Stack
 
+* **React + Vite / CRA** (based on your project)
+* **Tailwind CSS / MUI** (as used in your components)
+* **Axios** for API calls
+* **AWS Amplify** for hosting
+* **React Router** for SPA navigation
+* **Chart.js / Recharts** for graphs (if included)
 
+---
 
-## Architecture
+## 🔗 Architecture
 
-- **collect_data.py**: Fetch, normalize, and save current weather and water features
-- **train_model.py**: Train an ML model (RandomForest, LSTM, etc.) on historical or labeled data
-- **predict.py**: Run the model on new/current data for flood prediction
-- **/data**: Stores rolling time-series data as CSV or DB
-- **ML/ or models/**: Stores trained models (joblib/pickle/H5)
+```
+Frontend (React) → Backend API (FastAPI/Node/Python) → ML Model → Flood Prediction
+```
 
-_No explicit user interface or role management is present; this is a pipeline/data+ML project._
+Frontend responsibilities:
 
+* Fetch data from `/predict`, `/weather`, `/dam-levels`, etc.
+* Display values in UI components
+* Inform user with alerts when risk > threshold
+* Provide a clean, fast UX
 
+---
 
-## Setup
+## 🔧 Environment Variables
 
-### Prerequisites
+Create a `.env` file in the project root:
 
-- Python 3.8+ (with pandas, numpy, scikit-learn, requests)
-- MongoDB (for DB storage, optional; can use flat files)
-- Node.js (if using REST API trigger)
-- OpenWeather API key & endpoints for dam/river data
+```
+VITE_API_BASE_URL=https://api.floodprediction.in
+```
 
-### Install & Run
+For React CRA:
+
+```
+REACT_APP_API_BASE_URL=https://api.floodprediction.in
+```
+
+These variables are automatically injected during Amplify build.
+
+---
+
+## 📦 Setup & Installation
 
 ```bash
-git clone https://github.com/your-org/pune-flood-prediction.git
-cd pune-flood-prediction
-pip install -r requirements.txt
-python collect_data.py         # Collect live features and save to data/
-python train_model.py          # Train the model (optionally periodic)
-python predict.py              # Get a prediction for next-hour flood risk
+git clone https://github.com/your-org/floodprediction-frontend.git
+cd floodprediction-frontend
+npm install
 ```
 
+Run locally:
 
+```bash
+npm run dev
+```
 
-## Workflow
+---
 
-1. **Data is collected** every 30-60 min (CRON/scheduler or manual run).
-2. **Features are joined**: weather, dam, river, (static capacity if available).
-3. **Training data is labeled** with historical flood/no-flood events.
-4. **Model is trained** regularly/retrained as new events are labeled.
-5. **Predictions** are triggered on new/live data, either as scripts or via API.
-6. **Alerts/logs** are written if risk exceeds configured threshold.
+## 📜 Available Scripts
 
+| Command           | Description                       |
+| ----------------- | --------------------------------- |
+| `npm run dev`     | Start local dev server            |
+| `npm run build`   | Create production build           |
+| `npm run preview` | Local preview of production build |
 
+---
 
-## Directory Structure
+## 🔌 API Integration
+
+Example API call:
+
+```js
+const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/predict`);
+setPrediction(response.data);
+```
+
+Make sure **CORS** is allowed from Amplify domain:
 
 ```
-/pune-flood-prediction
-├── collect_data.py
-├── train_model.py
-├── predict.py
-├── data/
-│   └── (collected CSVs, rolling DB)
-├── models/
-│   └── (joblib/tf_model.pkl)
-├── requirements.txt
+https://main.<amplify-id>.amplifyapp.com
+https://www.floodprediction.in
+```
+
+---
+
+## ☁️ Build & Deployment (AWS Amplify)
+
+### 1. Connect Repository
+
+Go to AWS Amplify → Deploy → Connect GitHub → Select repo.
+
+### 2. Add Build Settings
+
+Amplify auto-detects React; if needed add:
+
+```
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: dist
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+```
+
+### 3. Add Environment Variables
+
+In Amplify → Build settings → Environment variables:
+
+```
+VITE_API_BASE_URL=https://api.floodprediction.in
+```
+
+### 4. Deploy
+
+Amplify builds & deploys automatically.
+
+### 5. Add Custom Domain
+
+Attach:
+
+```
+www.floodprediction.in → Amplify frontend
+api.floodprediction.in → Backend server (via NGINX/EC2)
+```
+
+---
+
+## 📁 Project Structure
+
+```
+/floodprediction-frontend
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── context/
+│   ├── utils/
+│   ├── App.jsx
+│   └── main.jsx
+├── public/
+├── package.json
 ├── README.md
-└── .env (sample config)
+└── .env
 ```
 
+---
 
+## 🖼️ Screenshots
 
-## Extending and Future Scope
+(Add your own screenshots later)
 
-- Add chart/dashboard view using Streamlit or Jupyter Notebook
-- Plug in SMS/Telegram/email API for live warnings
-- Expand to multicity or multicriteria flooding (severity/impact/loss)
-- Integrate crowdsourced rainfall or IoT sensors as new data streams
+```
+[Dashboard Screenshot Here]
+[Risk Indicator Here]
+[Weather & Dam Levels Here]
+```
 
+---
 
+## 🔮 Future Enhancements
 
-## License
+* 📍 Map-based flood visualization (Leaflet / Mapbox)
+* ⏱️ Historical trends & analytics
+* 🛰️ Satellite rainfall overlays
+* 🗺️ Ward-wise flood zone classification
+* 🛜 Offline-first PWA mode
+* 🔔 Push notification alerts for high-risk events
+* 🎛️ Admin dashboard for data monitoring
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome!
+Open a pull request or raise an issue for new features or bug fixes.
+
+---
+
+## 📄 License
 
 MIT License
 
+---
 
+## 📬 Contact
 
-## Contact
+For support or collaboration:
+📧 **[yashrajdhamale15@gmail.com](mailto:yashrajdhamale15@gmail.com)**
+🌐 **[https://www.floodprediction.in](https://www.floodprediction.in)**
 
-For feedback, bugs, or to contribute data connectors:  
-**your-email@example.com**
+---
 
-
-
-Replace `your-email@example.com` and any placeholders as needed.  
-This README is fully pipeline-focused—no user types/roles/UI separation, matching your project's technical scope!
-
-[1](https://github.com/othneildrew/Best-README-Template)
-[2](https://www.makeareadme.com)
-[3](https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/)
-[4](https://gist.github.com/ramantehlan/602ad8525699486e097092e4158c5bf1)
-[5](https://www.drupal.org/docs/develop/managing-a-drupalorg-theme-module-or-distribution-project/documenting-your-project/readmemd-template)
-[6](https://eheidi.dev/tech-writing/20221212_documentation-101/)
-[7](https://www.thegooddocsproject.dev/template/readme)
-[8](https://readme.so)
-[9](https://www.reddit.com/r/learnprogramming/comments/vxfku6/how_to_write_a_readme/)
