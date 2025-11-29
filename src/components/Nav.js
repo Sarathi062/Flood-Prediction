@@ -1,47 +1,64 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import Avatar from "@mui/material/Avatar";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import IconButton from "@mui/material/IconButton";
-import Tooltip from "@mui/material/Tooltip";
-import Divider from "@mui/material/Divider";
-import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+  Avatar,
+  Menu,
+  MenuItem,
+  IconButton,
+  Tooltip,
+  Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+
+import MenuIcon from "@mui/icons-material/Menu";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
+
 import { useUser } from "../hooks/useUser";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function Nav() {
   const navigate = useNavigate();
-  const { data: user, isLoading, isError, logout } = useUser();
+  const { data: user } = useUser();
   const queryClient = useQueryClient();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleProfileClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const openMenu = Boolean(anchorEl);
+
+  const handleAvatarClick = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const closeDrawerAndGo = (route) => {
+    setDrawerOpen(false);
+    navigate(route);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
   const handleLogout = async () => {
+    setDrawerOpen(false); // 👈 close drawer on logout
+
     await axios.delete(
       `${process.env.REACT_APP_DEP_API_URL}/api/login/logout`,
       { withCredentials: true }
     );
 
-    // Delete cookie from browser (backend already did this)
-
     queryClient.removeQueries(["currentUser"]);
-    queryClient.clear(); // clears all cached queries
+    queryClient.clear();
 
-    navigate("/");
+    navigate("/"); // 👈 go home after logout
   };
 
   return (
@@ -51,10 +68,10 @@ export default function Nav() {
         position: "sticky",
         top: 0,
         zIndex: 1000,
-        bgcolor: "rgba(255, 255, 255, 0.95)",
+        bgcolor: "rgba(255,255,255,0.95)",
         backdropFilter: "blur(10px)",
         borderBottom: "1px solid #e0e0e0",
-        py: 2,
+        py: 1.5,
       }}
     >
       <Container maxWidth="xl">
@@ -65,105 +82,181 @@ export default function Nav() {
             justifyContent: "space-between",
           }}
         >
-          {/* Logo */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <WaterDropIcon sx={{ fontSize: 32, color: "#1976d2" }} />
+          {/* Logo + Brand */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          >
+            <img
+              src="favicon.ico"
+              alt="Logo"
+              style={{ width: 32, height: 32, borderRadius: 4 }}
+            />
             <Typography
-              variant="h5"
+              variant="h6"
               sx={{
                 fontWeight: 700,
                 background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
-                display: { xs: "none", sm: "block" },
-                cursor: "pointer",
+                display: { xs: "block", sm: "block" },
               }}
-              onClick={() => navigate("/")}
             >
               Flood Prediction AI
             </Typography>
           </Box>
 
-          {user && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          {/* DESKTOP */}
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            {!user ? (
               <Button
                 variant="contained"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/login")}
                 sx={{
                   textTransform: "none",
-                  background:
-                    "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
                   fontWeight: 600,
                   px: 3,
-                  boxShadow: "0 4px 12px rgba(30, 64, 175, 0.3)",
+                  background:
+                    "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
                 }}
               >
-                View Dashboard
+                Login
               </Button>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate("/dashboard")}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 3,
+                    background:
+                      "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)",
+                  }}
+                >
+                  Dashboard
+                </Button>
 
-              {/* Profile avatar button */}
-              <Tooltip title="Account settings">
-                <IconButton
-                  onClick={handleProfileClick}
-                  size="small"
-                  sx={{ ml: 2 }}
+                <Tooltip title="Account settings">
+                  <IconButton onClick={handleAvatarClick}>
+                    <Avatar src={user?.photo} sx={{ width: 36, height: 36 }}>
+                      {!user?.photo && user?.name?.charAt(0)}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={openMenu}
+                  onClose={handleMenuClose}
                 >
-                  <Avatar
-                    src={user?.photo || ""}
-                    alt={user?.name || "Profile"}
-                    sx={{ width: 36, height: 36 }}
-                  >
-                    {!user?.photo && (user?.name ? user?.name.charAt(0) : "")}
-                  </Avatar>
-                </IconButton>
-              </Tooltip>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    mt: 1.5,
-                    minWidth: 220,
-                    borderRadius: 2,
-                  },
-                }}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <Box
-                  sx={{ p: 2, display: "flex", alignItems: "center", gap: 2 }}
-                >
-                  <Avatar
-                    src={user?.photo || ""}
-                    alt={user?.name || "Profile"}
-                  />
-                  <Box>
-                    <Typography variant="body1" fontWeight={600}>
-                      {user?.name || "User"}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {user?.email || ""}
-                    </Typography>
+                  <Box sx={{ p: 2, display: "flex", gap: 2 }}>
+                    <Avatar src={user?.photo} />
+                    <Box>
+                      <Typography fontWeight={600}>{user?.name}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {user?.email}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-                <Divider />
-                <MenuItem onClick={handleLogout}>
-                  <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </Box>
-          )}
+
+                  <Divider />
+
+                  <MenuItem onClick={handleLogout}>
+                    <LogoutIcon sx={{ mr: 1 }} /> Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </Box>
+
+          {/* MOBILE HAMBURGER */}
+          <IconButton
+            sx={{ display: { xs: "flex", md: "none" } }}
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon sx={{ fontSize: 30 }} />
+          </IconButton>
         </Box>
       </Container>
+
+      {/* MOBILE DRAWER */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+          sx: { width: 260, bgcolor: "#f8fafc" },
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" fontWeight={700}>
+            Menu
+          </Typography>
+        </Box>
+
+        <Divider />
+
+        <List>
+          {!user ? (
+            <>
+              {/* LOGIN BUTTON */}
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => closeDrawerAndGo("/login")}>
+                  <ListItemIcon>
+                    <LoginIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Login" />
+                </ListItemButton>
+              </ListItem>
+            </>
+          ) : (
+            <>
+              {/* PROFILE (non-functional placeholder) */}
+              <ListItem disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <AccountCircleIcon />
+                  </ListItemIcon>
+                  <ListItemText primary={user?.name || "Profile"} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* DASHBOARD */}
+              <ListItem disablePadding>
+                <ListItemButton onClick={() => closeDrawerAndGo("/dashboard")}>
+                  <ListItemIcon>
+                    <DashboardIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Dashboard" />
+                </ListItemButton>
+              </ListItem>
+
+              {/* LOGOUT */}
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            </>
+          )}
+        </List>
+      </Drawer>
     </Box>
   );
 }
