@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Typography,
   Grid,
@@ -7,6 +8,8 @@ import {
   Chip,
   Divider,
   LinearProgress,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 
 import {
@@ -21,231 +24,103 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+
 import axios from "axios";
 
-// Leaflet marker fix
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-});
+const TabPanel = ({ children, value, index }) => (
+  <div role="tabpanel" hidden={value !== index}>
+    {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
+  </div>
+);
 
-// Static data
-const STATIC_DATA = {
-  stations: [
-    {
-      location: "Mulshi Dam",
-      coordinates: { lat: 18.7298, lng: 73.6462 },
-      currentDischarge: 145.3,
-      rainfall24h: 12.5,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 18.2,
-          estimatedDischarge: 168.7,
-          releaseProbability: 0.52,
-          riskLevel: "Watch",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 24.1,
-          estimatedDischarge: 195.2,
-          releaseProbability: 0.78,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 15.3,
-          estimatedDischarge: 172.5,
-          releaseProbability: 0.65,
-          riskLevel: "Watch",
-        },
-      ],
-    },
-    {
-      location: "Khadakwasla Dam",
-      coordinates: { lat: 18.3534, lng: 73.8341 },
-      currentDischarge: 120.5,
-      rainfall24h: 8.3,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 14.1,
-          estimatedDischarge: 142.3,
-          releaseProbability: 0.38,
-          riskLevel: "Safe",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 21.5,
-          estimatedDischarge: 175.8,
-          releaseProbability: 0.65,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 18.9,
-          estimatedDischarge: 165.2,
-          releaseProbability: 0.58,
-          riskLevel: "Watch",
-        },
-      ],
-    },
-    {
-      location: "Panshet Dam",
-      coordinates: { lat: 18.2245, lng: 74.0267 },
-      currentDischarge: 98.4,
-      rainfall24h: 6.2,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 10.5,
-          estimatedDischarge: 115.3,
-          releaseProbability: 0.28,
-          riskLevel: "Safe",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 19.2,
-          estimatedDischarge: 152.6,
-          releaseProbability: 0.55,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 12.8,
-          estimatedDischarge: 128.9,
-          releaseProbability: 0.42,
-          riskLevel: "Safe",
-        },
-      ],
-    },
-  ],
-  kpis: {
-    criticalStations: 1,
-    alertsPublished: 1247,
-    forecastSkill: 91.2,
-    atRiskPopulation: "2.4M",
-  },
-  lstmConfig: {
-    architecture: "2-Layer LSTM (128 units) → Dense → Quantile Heads",
-    inputWindow: "72 hours (stride: 6h)",
-    features: [
-      "Rainfall (24h)",
-      "Upstream Gauge",
-      "Dam Outflow",
-      "Soil Moisture",
-      "NDVI",
-    ],
-    trainingSpan: "2020–2024",
-    rmse: "8.34 cm",
-    picp: "91.2%",
-    leadTime: "±24h",
-  },
-  modelHealth: {
-    dataCompleteness: 98.7,
-    psi: 0.08,
-    calibrationError: 3.2,
-  },
-  featureImportance: [
-    { feature: "Rainfall (24h)", importance: 34 },
-    { feature: "Upstream Gauge", importance: 28 },
-    { feature: "Dam Outflow", importance: 20 },
-    { feature: "Soil Moisture", importance: 12 },
-    { feature: "NDVI", importance: 6 },
-  ],
-  dataQuality: [
-    {
-      source: "IMD (Rainfall)",
-      lastUpdate: "2025-11-11 23:45",
-      lagMin: 5,
-      completeness: 99.8,
-      status: "healthy",
-    },
-    {
-      source: "CWC Gauges",
-      lastUpdate: "2025-11-11 23:52",
-      lagMin: 2,
-      completeness: 98.5,
-      status: "healthy",
-    },
-    {
-      source: "Dam Telemetry",
-      lastUpdate: "2025-11-11 23:50",
-      lagMin: 3,
-      completeness: 97.2,
-      status: "warning",
-    },
-    {
-      source: "Satellite (NDVI)",
-      lastUpdate: "2025-11-11 12:00",
-      lagMin: 720,
-      completeness: 95.0,
-      status: "info",
-    },
-  ],
-  alertsStats: {
-    totalPublished: 1247,
-    acknowledged: 1198,
-    retried: 42,
-    failed: 7,
-  },
-  channels: [
-    { name: "SMS", count: 487, status: "healthy" },
-    { name: "WhatsApp", count: 523, status: "healthy" },
-    { name: "Email", count: 198, status: "healthy" },
-    { name: "IVR", count: 39, status: "warning" },
-  ],
-  alertRules: [
-    {
-      condition: "Pred >= Warning (6h Lead)",
-      topic: "flood/alerts/maharashtra/pune/warning",
-      channels: "SMS, Email",
-      escalation: "District Authority",
-    },
-    {
-      condition: "Pred >= Danger (3h Lead)",
-      topic: "flood/alerts/maharashtra/pune/danger",
-      channels: "SMS, WhatsApp, IVR",
-      escalation: "State Control Room",
-    },
-    {
-      condition: "Data Drift Detected",
-      topic: "flood/system/model/drift",
-      channels: "Email",
-      escalation: "Ops Team + Retrain",
-    },
-  ],
-};
+const ModelLSTM = ({ tabValue, darkMode }) => {
+  const [evalData, setEvalData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-// Tab Panel Component
-const TabPanel = (props) => {
-  const { children, value, index, ...other } = props;
-  return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
-      {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
-    </div>
-  );
-};
-
-const ModelLSTM = ({ tabValue, locations, darkMode }) => {
+  /* ---------------------------
+     THEME (always at top)
+  ----------------------------*/
   const theme = {
     bgcolor: darkMode ? "#1a1a2e" : "#f5f5f5",
     paper: darkMode ? "#16213e" : "#ffffff",
-    text: darkMode ? "#eaeaea" : "#000000",
+    text: darkMode ? "#eaeaea" : "#000",
     border: darkMode ? "#0f3460" : "#e0e0e0",
     accent: darkMode ? "#e94560" : "#1976d2",
   };
+
+  /* ---------------------------
+     FETCH (always at top)
+  ----------------------------*/
+  useEffect(() => {
+    const fetchEval = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_DEP_API_URL}/api/evaluation/runEvaluation`
+        );
+        setEvalData(res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEval();
+  }, []);
+
+  /* ---------------------------
+     useMemo MUST ALWAYS RUN
+     (cannot be inside conditions)
+  ----------------------------*/
+  const timelineData = useMemo(() => {
+    if (!evalData) return [];
+    return evalData.timeline.map((row) => ({
+      time: new Date(row.timestamp).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      actual: row.actualDischarge,
+      predicted: row.predictedDischarge,
+      probability: Number(row.releaseProbability * 100).toFixed(2),
+    }));
+  }, [evalData]);
+
+  /* ---------------------------
+     Now SAFE to conditionally return
+  ----------------------------*/
+
+  if (tabValue !== 1) {
+    return <TabPanel value={tabValue} index={1}></TabPanel>;
+  }
+
+  if (loading) {
+    return (
+      <TabPanel value={tabValue} index={1}>
+        <Box sx={{ textAlign: "center", py: 4 }}>
+          <CircularProgress />
+          <Typography sx={{ mt: 2 }}>Evaluating LSTM Model...</Typography>
+        </Box>
+      </TabPanel>
+    );
+  }
+
+  if (error) {
+    return (
+      <TabPanel value={tabValue} index={1}>
+        <Alert severity="error">{error}</Alert>
+      </TabPanel>
+    );
+  }
+
+  const data = evalData;
+
+  /* -------------------------------------------
+     UI BELOW THIS POINT
+  -------------------------------------------*/
   return (
     <TabPanel value={tabValue} index={1}>
       <Grid container spacing={2}>
-        {/* LSTM Config */}
+        {/* LSTM CONFIG */}
         <Grid item xs={12} md={6}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
@@ -253,157 +128,153 @@ const ModelLSTM = ({ tabValue, locations, darkMode }) => {
                 LSTM Model Configuration
               </Typography>
               <Divider sx={{ my: 1 }} />
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Architecture:</strong>{" "}
-                {STATIC_DATA.lstmConfig.architecture}
+
+              <Typography>
+                <strong>Type:</strong> {data.modelInfo.type}
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Input Window:</strong>{" "}
-                {STATIC_DATA.lstmConfig.inputWindow}
+              <Typography>
+                <strong>Version:</strong> v{data.modelInfo.version}
               </Typography>
-              <Typography variant="body2" sx={{ mb: 1 }}>
-                <strong>Training Span:</strong>{" "}
-                {STATIC_DATA.lstmConfig.trainingSpan}
+              <Typography>
+                <strong>Seq Length:</strong> {data.modelInfo.sequenceLength}
               </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                <strong>Features:</strong>
+              <Typography>
+                <strong>Trained At:</strong>{" "}
+                {new Date(data.modelInfo.trainedAt).toLocaleString()}
               </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {STATIC_DATA.lstmConfig.features.map((f) => (
+
+              <Divider sx={{ my: 2 }} />
+
+              <Typography variant="subtitle2">Features:</Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                {data.modelInfo.features.map((f) => (
                   <Chip key={f} label={f} size="small" variant="outlined" />
                 ))}
               </Box>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                <strong>RMSE:</strong> {STATIC_DATA.lstmConfig.rmse}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 0.5 }}>
-                <strong>PICP (Coverage):</strong> {STATIC_DATA.lstmConfig.picp}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Lead Time:</strong> {STATIC_DATA.lstmConfig.leadTime}
-              </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Model Health */}
+        {/* MODEL HEALTH */}
         <Grid item xs={12} md={6}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Model Health & Drift
+                Model Health
               </Typography>
               <Divider sx={{ my: 1 }} />
+
+              {/* Accuracy */}
               <Box sx={{ mb: 2 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 0.5,
-                  }}
-                >
-                  <Typography variant="body2">Data Completeness</Typography>
-                  <Typography variant="body2">
-                    {STATIC_DATA.modelHealth.dataCompleteness}%
-                  </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography>Accuracy</Typography>
+                  <Typography>{data.metrics.accuracy.toFixed(2)}%</Typography>
                 </Box>
                 <LinearProgress
                   variant="determinate"
-                  value={STATIC_DATA.modelHealth.dataCompleteness}
+                  value={data.metrics.accuracy}
                 />
               </Box>
+
+              {/* RMSE */}
               <Box sx={{ mb: 2 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 0.5,
-                  }}
-                >
-                  <Typography variant="body2">PSI (Drift)</Typography>
-                  <Typography variant="body2">
-                    {STATIC_DATA.modelHealth.psi}
-                  </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography>RMSE</Typography>
+                  <Typography>{data.metrics.rmse.toFixed(2)}</Typography>
                 </Box>
                 <LinearProgress
                   variant="determinate"
-                  value={Math.min(STATIC_DATA.modelHealth.psi * 100, 100)}
+                  value={Math.min(data.metrics.rmse / 20, 100)}
                 />
               </Box>
+
+              {/* Samples */}
               <Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    mb: 0.5,
-                  }}
-                >
-                  <Typography variant="body2">Calibration Error</Typography>
-                  <Typography variant="body2">
-                    ±{STATIC_DATA.modelHealth.calibrationError}%
-                  </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography>Evaluation Samples</Typography>
+                  <Typography>{data.metrics.totalSamples}</Typography>
                 </Box>
-                <LinearProgress
-                  variant="determinate"
-                  value={100 - STATIC_DATA.modelHealth.calibrationError}
-                />
               </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Feature Importance Chart */}
+        {/* TIMELINE CHART */}
         <Grid item xs={12}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Feature Importance (SHAP)
+                Actual vs Predicted Discharge
               </Typography>
+
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={STATIC_DATA.featureImportance}
-                  layout="vertical"
-                >
+                <LineChart data={timelineData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis
-                    dataKey="feature"
-                    type="category"
-                    width={120}
-                    tick={{ fontSize: 12 }}
-                  />
+                  <XAxis dataKey="time" />
+                  <YAxis />
                   <RTooltip />
-                  <Bar dataKey="importance" fill={theme.accent} />
+                  <Legend />
+
+                  <Line
+                    type="monotone"
+                    dataKey="actual"
+                    stroke="#f44336"
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="predicted"
+                    stroke={theme.accent}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* PROBABILITY BAR CHART */}
+        <Grid item xs={12}>
+          <Card sx={{ bgcolor: theme.paper }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Release Probability (%)
+              </Typography>
+
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={timelineData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <RTooltip />
+                  <Bar dataKey="probability" fill={theme.accent} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Forecast with Intervals */}
+        {/* CONFUSION MATRIX */}
         <Grid item xs={12}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                72-Hour Forecast (Primary Station)
+                Confusion Matrix
               </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={locations[0]?.floodForecast || []}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <RTooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="estimatedDischarge"
-                    stroke={theme.accent}
-                    strokeWidth={2}
-                    name="Median Forecast"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+
+              <Grid container spacing={2}>
+                {Object.entries(data.metrics.confusionMatrix).map(([k, v]) => (
+                  <Grid item xs={6} sm={3} key={k}>
+                    <Card
+                      sx={{ p: 2, textAlign: "center", bgcolor: theme.bgcolor }}
+                    >
+                      <Typography variant="caption">{k}</Typography>
+                      <Typography variant="h5">{v}</Typography>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
             </CardContent>
           </Card>
         </Grid>
