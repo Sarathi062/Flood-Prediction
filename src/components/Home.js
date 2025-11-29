@@ -127,7 +127,7 @@ const Home = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "#ffffff", minHeight: "100vh" }} id="home-section">
       <Box
         sx={{
           background:
@@ -136,7 +136,6 @@ const Home = () => {
           position: "relative",
           overflow: "hidden",
         }}
-        id="home-section"
       >
         <Box
           sx={{
@@ -359,7 +358,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      <Container maxWidth="md" sx={{ py: 12 }}  id="system-section">
+      <Container maxWidth="md" sx={{ py: 12 }} id="system-section">
         {/* Header Section */}
         <Box sx={{ textAlign: "center", mb: 8 }}>
           <Typography
