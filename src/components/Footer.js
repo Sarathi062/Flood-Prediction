@@ -84,7 +84,9 @@ const Footer = () => {
               <Button
                 color="inherit"
                 sx={{ justifyContent: "flex-start", margin: 0, padding: 0 }}
-                onClick={() => navigate("/dashboard")}
+                onClick={() =>
+                  navigate("/dashboard", { state: { scrollTo: "dashboard" } })
+                }
               >
                 Dashboard
               </Button>
@@ -118,18 +120,14 @@ const Footer = () => {
               <Button
                 color="inherit"
                 sx={{ justifyContent: "flex-start", margin: 0, padding: 0 }}
-                onClick={() =>
-                  navigate("/privacy-policy", { state: { scrollTop: true } })
-                }
+                onClick={() => navigate("/privacy-policy")}
               >
                 Privacy Policy
               </Button>
               <Button
                 color="inherit"
                 sx={{ justifyContent: "flex-start", margin: 0, padding: 0 }}
-                onClick={() =>
-                  navigate("/terms-of-service", { state: { scrollTop: true } })
-                }
+                onClick={() => navigate("/terms-of-service")}
               >
                 Terms of Service
               </Button>

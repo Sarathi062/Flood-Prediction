@@ -56,7 +56,10 @@ const ModelLSTM = ({ tabValue, darkMode }) => {
     const fetchEval = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_DEP_API_URL}/api/evaluation/runEvaluation`
+          `${process.env.REACT_APP_DEP_API_URL}/api/evaluation/runEvaluation`,
+          {
+            withCredentials: true,
+          }
         );
         setEvalData(res.data);
       } catch (err) {

@@ -1,24 +1,16 @@
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import {
-  Container,
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
+import { Container, Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 
 const TermsOfService = () => {
-  const location = useLocation();
+  // Scroll top on load
   useEffect(() => {
-    if (location.state?.scrollTop) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [location]);
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
-      <Paper elevation={3} sx={{ p: 5, borderRadius: 3 }}>
+    <Box sx={{ backgroundColor: "white", py: 6 }}>
+      <Container maxWidth="md">
+        
         <Typography variant="h3" fontWeight="bold" gutterBottom>
           Terms of Service
         </Typography>
@@ -57,8 +49,7 @@ const TermsOfService = () => {
           Account Requirements
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          To use certain features, you must authenticate using Google OAuth. You
-          are responsible for maintaining the security of your account.
+          To use certain features, you must authenticate using Google OAuth.
         </Typography>
 
         {/* SECTION */}
@@ -66,10 +57,7 @@ const TermsOfService = () => {
           Prediction Disclaimer
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          FloodPrediction provides predictions based on available data and
-          models. These predictions are for informational purposes only. We do
-          not guarantee accuracy, and we are not responsible for damages
-          resulting from reliance on our predictions.
+          FloodPrediction provides predictions based on models...
         </Typography>
 
         {/* SECTION */}
@@ -77,41 +65,17 @@ const TermsOfService = () => {
           Intellectual Property
         </Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          All content, branding, and code on FloodPrediction is the property of
-          the developer and may not be copied or reproduced without permission.
-        </Typography>
-
-        {/* SECTION */}
-        <Typography variant="h5" fontWeight={600} sx={{ mt: 4, mb: 1 }}>
-          Limitation of Liability
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          We are not liable for any direct or indirect damages caused by the use
-          of our service, including inaccurate predictions.
-        </Typography>
-
-        {/* SECTION */}
-        <Typography variant="h5" fontWeight={600} sx={{ mt: 4, mb: 1 }}>
-          Changes to These Terms
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 2 }}>
-          We may update these Terms of Service at any time. Updated versions
-          will be posted on this page.
+          All content and code on FloodPrediction is the property of the developer.
         </Typography>
 
         {/* SECTION */}
         <Typography variant="h5" fontWeight={600} sx={{ mt: 4, mb: 1 }}>
           Contact Us
         </Typography>
-        <Typography variant="body1" sx={{ mb: 1 }}>
-          If you have questions about these terms, contact us at:
-        </Typography>
+        <Typography variant="body1">sarathi062023@gmail.com</Typography>
 
-        <Typography variant="body1" fontWeight="bold">
-          sarathi062023@gmail.com
-        </Typography>
-      </Paper>
-    </Container>
+      </Container>
+    </Box>
   );
 };
 

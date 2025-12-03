@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermsOfService";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ScrollToTop from "./components/ScrollToTop";
 import { useUser } from "./hooks/useUser";
 import DisclaimerModal from "./components/DisclaimerModal";
 
@@ -63,6 +64,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <ScrollToTop />
+
       <DisclaimerModal
         open={showDisclaimer}
         onClose={() => setShowDisclaimer(false)}
