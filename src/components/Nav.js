@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Container,
@@ -60,6 +60,7 @@ export default function Nav() {
 
     navigate("/"); // 👈 go home after logout
   };
+  const location = useLocation();
 
   return (
     <Box
@@ -90,7 +91,9 @@ export default function Nav() {
               gap: 1,
               cursor: "pointer",
             }}
-            onClick={() => navigate("/")}
+            onClick={() =>
+              navigate("/", { state: { scrollTo: "home-section" } })
+            }
           >
             <img
               src="favicon.ico"
@@ -122,7 +125,11 @@ export default function Nav() {
             {!user ? (
               <Button
                 variant="contained"
-                onClick={() => navigate("/login")}
+                onClick={() =>
+                  navigate("/login", {
+                    state: { backgroundLocation: location },
+                  })
+                }
                 sx={{
                   textTransform: "none",
                   fontWeight: 600,
