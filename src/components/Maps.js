@@ -106,7 +106,9 @@ const Maps = ({
     else setLocalLoading(true);
 
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/predict-flood`);
+      const res = await axios.get(`${API_BASE_URL}/api/predict-flood`, {
+        withCredentials: true,
+      });
 
       // sample shows data under res.data.data
       const dataArray = res?.data?.data ?? res?.data ?? [];

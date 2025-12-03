@@ -1,25 +1,24 @@
 import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Container,
-  Paper,
+  Box,
   Typography,
   List,
   ListItem,
-  ListItemText,
-  Divider,
+  ListItemText
 } from "@mui/material";
 
 const PrivacyPolicy = () => {
-  const location = useLocation();
+
+  // Scroll to top when page loads
   useEffect(() => {
-    if (location.state?.scrollTop) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [location]);
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
-      <Paper elevation={3} sx={{ p: 5, borderRadius: 3 }}>
+    <Box sx={{ backgroundColor: "white", py: 6 }}>
+      <Container maxWidth="md">
+
         <Typography variant="h3" fontWeight="bold" gutterBottom>
           Privacy Policy
         </Typography>
@@ -29,7 +28,7 @@ const PrivacyPolicy = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 3 }}>
-          FloodPrediction (“we”, “our”, “us”) is committed to protecting your
+          FloodPrediction ("we", "our", "us") is committed to protecting your
           privacy. This Privacy Policy explains how we collect, use, and protect
           your information when you use our website and services.
         </Typography>
@@ -47,7 +46,7 @@ const PrivacyPolicy = () => {
           {[
             "Your name",
             "Your email address",
-            "Your Google profile picture (optional)",
+            "Your Google profile picture (optional)"
           ].map((item, idx) => (
             <ListItem key={idx} sx={{ display: "list-item", p: 0 }}>
               <ListItemText primary={item} />
@@ -73,7 +72,7 @@ const PrivacyPolicy = () => {
           {[
             "User authentication",
             "Providing personalized predictions or features",
-            "Improving the user experience",
+            "Improving the user experience"
           ].map((item, idx) => (
             <ListItem key={idx} sx={{ display: "list-item", p: 0 }}>
               <ListItemText primary={item} />
@@ -106,8 +105,7 @@ const PrivacyPolicy = () => {
         </Typography>
 
         <Typography variant="body1" sx={{ mb: 1 }}>
-          You may request deletion of your account or data at any time by
-          emailing:
+          You may request deletion of your account or data at any time by emailing:
         </Typography>
 
         <Typography variant="body1" fontWeight="bold">
@@ -136,8 +134,9 @@ const PrivacyPolicy = () => {
         <Typography variant="body1" fontWeight="bold">
           sarathi062023@gmail.com
         </Typography>
-      </Paper>
-    </Container>
+
+      </Container>
+    </Box>
   );
 };
 
