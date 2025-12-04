@@ -17,7 +17,11 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import Button from "@mui/material/Button";
+import SaveIcon from "@mui/icons-material/Save";
 import L from "leaflet";
+import { useUser } from "../hooks/useUser";
+import RegionSelector from "./RegionSelector";
 import "leaflet/dist/leaflet.css";
 import { useNavigate, useLocation } from "react-router-dom";
 const BACKEND_URL = process.env.REACT_APP_DEP_API_URL;
@@ -57,7 +61,7 @@ const UserDashboard = () => {
   const mapRef = useRef(null);
   const theme = useTheme();
   const location = useLocation();
-
+  const { data: user } = useUser();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm")); // <600px
   const isDesktop = useMediaQuery(theme.breakpoints.up("md")); // >900px
 
@@ -294,21 +298,7 @@ const UserDashboard = () => {
           flexDirection: "column",
         }}
       >
-        <Typography variant="h6" gutterBottom>
-          📍 Select Regions for Alerts
-        </Typography>
-
-        {/* {regions.map((region, i) => ( */}
-        <FormControlLabel
-          // key={i}
-          control={
-            <Checkbox
-            // onChange={() => toggleRegion(region)}
-            />
-          }
-          label={"Pune"}
-        />
-        {/* ))} */}
+        <RegionSelector user={user} />
 
         <Divider sx={{ my: 2 }} />
 
@@ -320,8 +310,8 @@ const UserDashboard = () => {
           sx={{
             maxHeight: isDesktop ? "70vh" : "50vh",
             overflowY: "auto",
-            filter: listLoading ? "blur(3px)" : "none",
-            pointerEvents: listLoading ? "none" : "auto",
+            // filter: listLoading ? "blur(3px)" : "none",
+            // pointerEvents: listLoading ? "none" : "auto",
           }}
         >
           {listLoading ? (
@@ -329,6 +319,12 @@ const UserDashboard = () => {
               <Skeleton height={40} sx={{ mb: 1 }} />
               <Skeleton height={40} sx={{ mb: 1 }} />
               <Skeleton height={40} sx={{ mb: 1 }} />
+              <Button
+                fullWidth
+                loading
+                loadingPosition="start"
+                startIcon={<SaveIcon />}
+              ></Button>
             </>
           ) : (
             <>

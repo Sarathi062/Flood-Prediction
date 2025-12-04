@@ -75,9 +75,13 @@ const Footer = () => {
               <Button
                 color="inherit"
                 sx={{ justifyContent: "flex-start", margin: 0, padding: 0 }}
-                onClick={() =>
-                  navigate("/", { state: { scrollTo: "home-section" } })
-                }
+                onClick={() => {
+                  navigate("/");
+                  window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  });
+                }}
               >
                 Home
               </Button>
