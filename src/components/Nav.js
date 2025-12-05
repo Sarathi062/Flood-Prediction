@@ -19,7 +19,6 @@ import {
   Badge,
 } from "@mui/material";
 import NotificationDrawer from "./NotificationDrawer";
-import AlertProfileModal from "./AlertProfileModal";
 
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -41,7 +40,6 @@ export default function Nav() {
   const { data: user } = useUser();
   const queryClient = useQueryClient();
   const [notifDrawerOpen, setNotifDrawerOpen] = useState(false);
-  const [alertModalOpen, setAlertModalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifAnchor, setNotifAnchor] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -80,6 +78,7 @@ export default function Nav() {
       behavior: "smooth",
     });
   };
+
 
   return (
     <Box
@@ -405,15 +404,10 @@ export default function Nav() {
           notifications={user?.notifications || []}
           onCompleteProfile={() => {
             setNotifDrawerOpen(false);
-            setAlertModalOpen(true); // open form
           }}
         />
 
-        {/* 📝 ALERT PROFILE FORM MODAL */}
-        <AlertProfileModal
-          open={alertModalOpen}
-          onClose={() => setAlertModalOpen(false)}
-        />
+       
       </Container>
     </Box>
   );
