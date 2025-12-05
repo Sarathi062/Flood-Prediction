@@ -14,6 +14,7 @@ export default function NotificationDrawer({
   onCompleteProfile,
   notifications = [],
 }) {
+
   return (
     <Drawer
       anchor="right"
@@ -44,18 +45,6 @@ export default function NotificationDrawer({
             <Typography variant="caption" sx={{ opacity: 0.5 }}>
               {new Date(n.createdAt).toLocaleString()}
             </Typography>
-
-            {/* SPECIAL CASE — COMPLETE ALERT PROFILE */}
-            {n.id === "complete-alert-profile" && (
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{ mt: 1 }}
-                onClick={onCompleteProfile}
-              >
-                Complete Now →
-              </Button>
-            )}
           </ListItem>
         ))}
       </List>
