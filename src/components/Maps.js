@@ -113,6 +113,8 @@ const Maps = ({
       // sample shows data under res.data.data
       const dataArray = res?.data?.data ?? res?.data ?? [];
 
+      console.log(dataArray);
+      
       if (Array.isArray(dataArray)) {
         setLocations?.(dataArray);
 

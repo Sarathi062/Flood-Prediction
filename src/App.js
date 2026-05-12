@@ -14,6 +14,7 @@ import TermsOfService from "./components/TermsOfService";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import { useUser } from "./hooks/useUser";
+import { useAdmin } from "./hooks/useAdmin";
 import DisclaimerModal from "./components/DisclaimerModal";
 
 import { Modal, Box } from "@mui/material";
@@ -45,8 +46,15 @@ const theme = createTheme({
 });
 
 function App() {
-  const { data: user } = useUser();
-  const admin = false;
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: admin, isLoading: adminLoading } = useAdmin();
+
+  const isLoading = userLoading || adminLoading;
+
+  const role = admin ? "admin" : user ? "user" : null;
+
+  const currentUser = admin || user;
+
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -84,8 +92,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              {user && <UserDashboard />}
-              {admin && <Dashboard />}
+              {role === "user" ? <UserDashboard /> : <Dashboard />}
             </ProtectedRoute>
           }
         />

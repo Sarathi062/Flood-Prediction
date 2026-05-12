@@ -29,6 +29,7 @@ import LoginIcon from "@mui/icons-material/Login";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -37,7 +38,15 @@ const BACKEND_URL = process.env.REACT_APP_DEP_API_URL;
 export default function Nav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: user } = useUser();
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: admin, isLoading: adminLoading } = useAdmin();
+
+  const isLoading = userLoading || adminLoading;
+
+  const role = admin ? "admin" : user ? "user" : null;
+
+  const currentUser = admin || user;
+
   const queryClient = useQueryClient();
   const [notifDrawerOpen, setNotifDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -55,7 +64,7 @@ export default function Nav() {
       await axios.post(
         `${BACKEND_URL}/api/user/mark-seen`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
       queryClient.invalidateQueries(["currentUser"]);
     } catch (err) {
@@ -78,7 +87,6 @@ export default function Nav() {
       behavior: "smooth",
     });
   };
-
 
   return (
     <Box
@@ -143,7 +151,7 @@ export default function Nav() {
               gap: 2,
             }}
           >
-            {!user ? (
+            {!currentUser ? (
               <Button
                 variant="contained"
                 onClick={() =>
@@ -264,8 +272,8 @@ export default function Nav() {
                 {/* USER MENU */}
                 <Tooltip title="Account settings">
                   <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
-                    <Avatar src={user?.photo} sx={{ width: 36, height: 36 }}>
-                      {!user?.photo && user?.name?.charAt(0)}
+                    <Avatar src={currentUser?.photo} sx={{ width: 36, height: 36 }}>
+                      {!currentUser?.photo && currentUser?.name?.charAt(0)}
                     </Avatar>
                   </IconButton>
                 </Tooltip>
@@ -276,11 +284,11 @@ export default function Nav() {
                   onClose={() => setAnchorEl(null)}
                 >
                   <Box sx={{ p: 2, display: "flex", gap: 2 }}>
-                    <Avatar src={user?.photo} />
+                    <Avatar src={currentUser?.photo} />
                     <Box>
-                      <Typography fontWeight={600}>{user?.name}</Typography>
+                      <Typography fontWeight={600}>{currentUser?.name}</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {user?.email}
+                        {currentUser?.email}
                       </Typography>
                     </Box>
                   </Box>
@@ -294,7 +302,7 @@ export default function Nav() {
               </>
             )}
           </Box>
-          {user ? (
+          {currentUser ? (
             <Box
               sx={{
                 display: "flex",
@@ -360,7 +368,7 @@ export default function Nav() {
           <Divider />
 
           <List>
-            {!user ? (
+            {!currentUser ? (
               <ListItem disablePadding>
                 <ListItemButton onClick={() => navigate("/login")}>
                   <ListItemIcon>
@@ -401,13 +409,11 @@ export default function Nav() {
         <NotificationDrawer
           open={notifDrawerOpen}
           onClose={() => setNotifDrawerOpen(false)}
-          notifications={user?.notifications || []}
+          notifications={currentUser?.notifications || []}
           onCompleteProfile={() => {
             setNotifDrawerOpen(false);
           }}
         />
-
-       
       </Container>
     </Box>
   );
