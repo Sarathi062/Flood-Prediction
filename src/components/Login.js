@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import {
   Box,
   Card,
@@ -44,24 +45,13 @@ function Login({ onClose }) {
     setError("");
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(adminCredentials),
-        credentials: "include",
+      await axios.post(`${BACKEND_URL}/api/login/admin`, adminCredentials, {
+        withCredentials: true,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("adminToken", data.token);
-        localStorage.setItem("userRole", "admin");
-        navigate("/dashboard");
-      } else {
-        setError(data.message || "Invalid admin credentials");
-      }
+      navigate("/dashboard");
     } catch (err) {
-      setError("Failed to connect to server");
+      setError(err?.response?.data?.message || "Login failed");
     }
   };
 
@@ -75,7 +65,15 @@ function Login({ onClose }) {
   // Default login type selection
   if (!loginType) {
     return (
-      <Card sx={{ maxWidth: 420, width: "100%", boxShadow: 4, borderRadius: 3, position: "relative" }}>
+      <Card
+        sx={{
+          maxWidth: 420,
+          width: "100%",
+          boxShadow: 4,
+          borderRadius: 3,
+          position: "relative",
+        }}
+      >
         <IconButton
           onClick={onClose}
           sx={{ position: "absolute", right: 8, top: 8, zIndex: 10 }}
@@ -84,10 +82,20 @@ function Login({ onClose }) {
         </IconButton>
 
         <CardContent sx={{ p: 4 }}>
-          <Typography variant="h5" align="center" fontWeight="bold" gutterBottom>
+          <Typography
+            variant="h5"
+            align="center"
+            fontWeight="bold"
+            gutterBottom
+          >
             Welcome to Flood Prediction AI
           </Typography>
-          <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography
+            variant="body2"
+            align="center"
+            color="text.secondary"
+            sx={{ mb: 3 }}
+          >
             Choose your login method
           </Typography>
 
@@ -118,11 +126,17 @@ function Login({ onClose }) {
   // Admin login form
   if (loginType === "admin") {
     return (
-      <Card sx={{ maxWidth: 420, width: "100%", boxShadow: 4, borderRadius: 3 }}>
+      <Card
+        sx={{ maxWidth: 420, width: "100%", boxShadow: 4, borderRadius: 3 }}
+      >
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <AdminPanelSettings sx={{ fontSize: 38, color: "primary.main", mr: 1 }} />
-            <Typography variant="h5" fontWeight="bold">Admin Login</Typography>
+            <AdminPanelSettings
+              sx={{ fontSize: 38, color: "primary.main", mr: 1 }}
+            />
+            <Typography variant="h5" fontWeight="bold">
+              Admin Login
+            </Typography>
           </Box>
 
           {error && (
@@ -162,11 +176,21 @@ function Login({ onClose }) {
               }}
             />
 
-            <Button fullWidth type="submit" variant="contained" sx={{ mt: 3, py: 1.3 }}>
+            <Button
+              fullWidth
+              type="submit"
+              variant="contained"
+              sx={{ mt: 3, py: 1.3 }}
+            >
               Sign In as Admin
             </Button>
 
-            <Button fullWidth variant="text" sx={{ mt: 1 }} onClick={() => setLoginType("")}>
+            <Button
+              fullWidth
+              variant="text"
+              sx={{ mt: 1 }}
+              onClick={() => setLoginType("")}
+            >
               Back
             </Button>
           </form>
@@ -182,7 +206,12 @@ function Login({ onClose }) {
         <Typography variant="h5" align="center" fontWeight="bold" gutterBottom>
           Welcome to Flood Prediction AI
         </Typography>
-        <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
+        <Typography
+          variant="body2"
+          align="center"
+          color="text.secondary"
+          sx={{ mb: 3 }}
+        >
           Sign in with your Google account to continue
         </Typography>
 
@@ -191,7 +220,11 @@ function Login({ onClose }) {
           variant="contained"
           startIcon={<GoogleIcon />}
           onClick={handleGoogleLogin}
-          sx={{ py: 1.3, bgcolor: "#4285f4", "&:hover": { bgcolor: "#357ae8" } }}
+          sx={{
+            py: 1.3,
+            bgcolor: "#4285f4",
+            "&:hover": { bgcolor: "#357ae8" },
+          }}
         >
           Continue with Google
         </Button>

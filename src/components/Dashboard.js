@@ -40,7 +40,7 @@ import Predictions from "./Predictions";
 import ModelLSTM from "./ModelLSTM";
 import Alerts from "./Alerts";
 import Maps from "./Maps";
-
+import { useAdmin } from "../hooks/useAdmin";
 // Leaflet marker fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -278,8 +278,8 @@ const ForecastCard = ({ station, onCardClick }) => (
           station.riskLevel === "Safe"
             ? "success"
             : station.riskLevel === "Watch"
-            ? "warning"
-            : "error"
+              ? "warning"
+              : "error"
         }
         size="small"
         sx={{ mb: 1 }}
@@ -323,8 +323,8 @@ const ForecastDetailDialog = ({ open, station, onClose }) => (
                 day.riskLevel === "Safe"
                   ? "success"
                   : day.riskLevel === "Watch"
-                  ? "warning"
-                  : "error"
+                    ? "warning"
+                    : "error"
               }
             />
           </Box>
@@ -374,8 +374,8 @@ const Dashboard = () => {
 
   const alertCount = locations.filter((loc) =>
     loc.floodForecast.some(
-      (f) => f.riskLevel === "Warning" || f.riskLevel === "Danger"
-    )
+      (f) => f.riskLevel === "Warning" || f.riskLevel === "Danger",
+    ),
   ).length;
 
   const theme = {

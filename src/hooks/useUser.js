@@ -5,12 +5,20 @@ export const useUser = () => {
   return useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
-      const res = await axios.get(
-        `${process.env.REACT_APP_DEP_API_URL}/api/login/me`,
-        { withCredentials: true }
-      );
-      return res.data.user;
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_DEP_API_URL}/api/login/me`,
+          { withCredentials: true }
+        );
+
+        return res.data.user;
+      } catch (err) {
+        if (err.response?.status === 401) {
+          return null; // not logged in
+        }
+        throw err;
+      }
     },
-    retry: false, // important → don't retry unauthorized
+    retry: false,
   });
 };

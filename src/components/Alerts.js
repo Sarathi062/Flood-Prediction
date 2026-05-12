@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Typography,
   Grid,
@@ -10,202 +11,50 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  TextField,
+  MenuItem,
+  Button,
+  Snackbar,
+  Alert,
+  Chip,
+  CircularProgress,
 } from "@mui/material";
+
 import {
-  Refresh as RefreshIcon,
-  Notifications as NotificationsIcon,
-  WaterDrop as WaterDropIcon,
-  Cloud as CloudIcon,
   Warning as WarningIcon,
-  DarkMode as DarkModeIcon,
-  LightMode as LightModeIcon,
-  Download as DownloadIcon,
-  TrendingUp as TrendingUpIcon,
   CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
+  Send as SendIcon,
 } from "@mui/icons-material";
 
-import "leaflet/dist/leaflet.css";
 import axios from "axios";
 
-// Tab Panel Component
-const TabPanel = (props) => {
-  const { children, value, index, ...other } = props;
+// TabPanel
+const TabPanel = ({ children, value, index }) => {
   return (
-    <div role="tabpanel" hidden={value !== index} {...other}>
+    <div hidden={value !== index}>
       {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
     </div>
   );
 };
-// Static data
+
+// Static Data
 const STATIC_DATA = {
-  stations: [
-    {
-      location: "Mulshi Dam",
-      coordinates: { lat: 18.7298, lng: 73.6462 },
-      currentDischarge: 145.3,
-      rainfall24h: 12.5,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 18.2,
-          estimatedDischarge: 168.7,
-          releaseProbability: 0.52,
-          riskLevel: "Watch",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 24.1,
-          estimatedDischarge: 195.2,
-          releaseProbability: 0.78,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 15.3,
-          estimatedDischarge: 172.5,
-          releaseProbability: 0.65,
-          riskLevel: "Watch",
-        },
-      ],
-    },
-    {
-      location: "Khadakwasla Dam",
-      coordinates: { lat: 18.3534, lng: 73.8341 },
-      currentDischarge: 120.5,
-      rainfall24h: 8.3,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 14.1,
-          estimatedDischarge: 142.3,
-          releaseProbability: 0.38,
-          riskLevel: "Safe",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 21.5,
-          estimatedDischarge: 175.8,
-          releaseProbability: 0.65,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 18.9,
-          estimatedDischarge: 165.2,
-          releaseProbability: 0.58,
-          riskLevel: "Watch",
-        },
-      ],
-    },
-    {
-      location: "Panshet Dam",
-      coordinates: { lat: 18.2245, lng: 74.0267 },
-      currentDischarge: 98.4,
-      rainfall24h: 6.2,
-      riskLevel: "Safe",
-      floodForecast: [
-        {
-          date: "2025-11-11",
-          rainfall: 10.5,
-          estimatedDischarge: 115.3,
-          releaseProbability: 0.28,
-          riskLevel: "Safe",
-        },
-        {
-          date: "2025-11-12",
-          rainfall: 19.2,
-          estimatedDischarge: 152.6,
-          releaseProbability: 0.55,
-          riskLevel: "Warning",
-        },
-        {
-          date: "2025-11-13",
-          rainfall: 12.8,
-          estimatedDischarge: 128.9,
-          releaseProbability: 0.42,
-          riskLevel: "Safe",
-        },
-      ],
-    },
-  ],
-  kpis: {
-    criticalStations: 1,
-    alertsPublished: 1247,
-    forecastSkill: 91.2,
-    atRiskPopulation: "2.4M",
-  },
-  lstmConfig: {
-    architecture: "2-Layer LSTM (128 units) → Dense → Quantile Heads",
-    inputWindow: "72 hours (stride: 6h)",
-    features: [
-      "Rainfall (24h)",
-      "Upstream Gauge",
-      "Dam Outflow",
-      "Soil Moisture",
-      "NDVI",
-    ],
-    trainingSpan: "2020–2024",
-    rmse: "8.34 cm",
-    picp: "91.2%",
-    leadTime: "±24h",
-  },
-  modelHealth: {
-    dataCompleteness: 98.7,
-    psi: 0.08,
-    calibrationError: 3.2,
-  },
-  featureImportance: [
-    { feature: "Rainfall (24h)", importance: 34 },
-    { feature: "Upstream Gauge", importance: 28 },
-    { feature: "Dam Outflow", importance: 20 },
-    { feature: "Soil Moisture", importance: 12 },
-    { feature: "NDVI", importance: 6 },
-  ],
-  dataQuality: [
-    {
-      source: "IMD (Rainfall)",
-      lastUpdate: "2025-11-11 23:45",
-      lagMin: 5,
-      completeness: 99.8,
-      status: "healthy",
-    },
-    {
-      source: "CWC Gauges",
-      lastUpdate: "2025-11-11 23:52",
-      lagMin: 2,
-      completeness: 98.5,
-      status: "healthy",
-    },
-    {
-      source: "Dam Telemetry",
-      lastUpdate: "2025-11-11 23:50",
-      lagMin: 3,
-      completeness: 97.2,
-      status: "warning",
-    },
-    {
-      source: "Satellite (NDVI)",
-      lastUpdate: "2025-11-11 12:00",
-      lagMin: 720,
-      completeness: 95.0,
-      status: "info",
-    },
-  ],
+  stations: ["Pune", "Kolhapur"],
+
   alertsStats: {
     totalPublished: 1247,
     acknowledged: 1198,
     retried: 42,
     failed: 7,
   },
+
   channels: [
     { name: "SMS", count: 487, status: "healthy" },
     { name: "WhatsApp", count: 523, status: "healthy" },
     { name: "Email", count: 198, status: "healthy" },
     { name: "IVR", count: 39, status: "warning" },
   ],
+
   alertRules: [
     {
       condition: "Pred >= Warning (6h Lead)",
@@ -227,94 +76,113 @@ const STATIC_DATA = {
     },
   ],
 };
+
 const Alerts = ({ tabValue, darkMode }) => {
+  const [region, setRegion] = useState("");
+  const [alertLevel, setAlertLevel] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
   const theme = {
-    bgcolor: darkMode ? "#1a1a2e" : "#f5f5f5",
     paper: darkMode ? "#16213e" : "#ffffff",
-    text: darkMode ? "#eaeaea" : "#000000",
-    border: darkMode ? "#0f3460" : "#e0e0e0",
     accent: darkMode ? "#e94560" : "#1976d2",
   };
+
+  const getLevelColor = (level) => {
+    if (level === "GREEN") return "success";
+    if (level === "ORANGE") return "warning";
+    if (level === "RED") return "error";
+    return "default";
+  };
+
+  const handleSendNotification = async () => {
+    if (!region || !alertLevel || !subject || !message) {
+      setSnackbar({
+        open: true,
+        message: "Please fill all fields",
+        severity: "warning",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await axios.post(
+        `${process.env.REACT_APP_DEP_API_URL}/api/user/subscribe-region-mail`,
+        {
+          region,
+          level: alertLevel,
+          subject,
+          message,
+        },
+        { withCredentials: true },
+      );
+
+      setSnackbar({
+        open: true,
+        message: "Alert sent successfully",
+        severity: "success",
+      });
+
+      setRegion("");
+      setAlertLevel("");
+      setSubject("");
+      setMessage("");
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: "Failed to send alert",
+        severity: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <TabPanel value={tabValue} index={3}>
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {/* Alert Statistics */}
         <Grid item xs={12} md={6}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Alert Statistics (Pub/Sub Pipeline)
-              </Typography>
+              <Typography variant="h6">Alert Statistics</Typography>
               <Divider sx={{ my: 1 }} />
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body2">Total Published:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {STATIC_DATA.alertsStats.totalPublished}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body2">Acknowledged:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {STATIC_DATA.alertsStats.acknowledged} (
-                  {(
-                    (STATIC_DATA.alertsStats.acknowledged /
-                      STATIC_DATA.alertsStats.totalPublished) *
-                    100
-                  ).toFixed(1)}
-                  %)
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  mb: 1,
-                }}
-              >
-                <Typography variant="body2">Retried:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {STATIC_DATA.alertsStats.retried}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="body2">Failed:</Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, color: "#f44336" }}
-                >
-                  {STATIC_DATA.alertsStats.failed} (
-                  {(
-                    (STATIC_DATA.alertsStats.failed /
-                      STATIC_DATA.alertsStats.totalPublished) *
-                    100
-                  ).toFixed(2)}
-                  %)
-                </Typography>
-              </Box>
+
+              <Typography>
+                Total Published: {STATIC_DATA.alertsStats.totalPublished}
+              </Typography>
+
+              <Typography>
+                Acknowledged: {STATIC_DATA.alertsStats.acknowledged}
+              </Typography>
+
+              <Typography>
+                Retried: {STATIC_DATA.alertsStats.retried}
+              </Typography>
+
+              <Typography color="error">
+                Failed: {STATIC_DATA.alertsStats.failed}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Channel Delivery */}
+        {/* Channel Metrics */}
         <Grid item xs={12} md={6}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Channel Delivery Metrics
-              </Typography>
+              <Typography variant="h6">Channel Delivery</Typography>
               <Divider sx={{ my: 1 }} />
+
               {STATIC_DATA.channels.map((channel) => (
                 <Box
                   key={channel.name}
@@ -322,20 +190,17 @@ const Alerts = ({ tabValue, darkMode }) => {
                     display: "flex",
                     justifyContent: "space-between",
                     mb: 1,
-                    alignItems: "center",
                   }}
                 >
-                  <Typography variant="body2">{channel.name}</Typography>
+                  <Typography>{channel.name}</Typography>
+
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      {channel.count}
-                    </Typography>
+                    {channel.count}
+
                     {channel.status === "healthy" ? (
-                      <CheckCircleIcon
-                        sx={{ color: "#4caf50", fontSize: 18 }}
-                      />
+                      <CheckCircleIcon sx={{ color: "green", fontSize: 18 }} />
                     ) : (
-                      <WarningIcon sx={{ color: "#ff9800", fontSize: 18 }} />
+                      <WarningIcon sx={{ color: "orange", fontSize: 18 }} />
                     )}
                   </Box>
                 </Box>
@@ -348,30 +213,23 @@ const Alerts = ({ tabValue, darkMode }) => {
         <Grid item xs={12}>
           <Card sx={{ bgcolor: theme.paper }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Alert Rules & Escalation Matrix
-              </Typography>
+              <Typography variant="h6">Alert Rules & Escalation</Typography>
+
               <Table>
                 <TableHead>
-                  <TableRow
-                    sx={{
-                      bgcolor: theme.accent,
-                      "& th": { color: "white" },
-                    }}
-                  >
-                    <TableCell>Condition</TableCell>
-                    <TableCell>Topic</TableCell>
-                    <TableCell>Channels</TableCell>
-                    <TableCell>Escalation</TableCell>
+                  <TableRow sx={{ bgcolor: theme.accent }}>
+                    <TableCell sx={{ color: "white" }}>Condition</TableCell>
+                    <TableCell sx={{ color: "white" }}>Topic</TableCell>
+                    <TableCell sx={{ color: "white" }}>Channels</TableCell>
+                    <TableCell sx={{ color: "white" }}>Escalation</TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
                   {STATIC_DATA.alertRules.map((rule, idx) => (
                     <TableRow key={idx}>
                       <TableCell>{rule.condition}</TableCell>
-                      <TableCell sx={{ fontSize: "0.85rem" }}>
-                        {rule.topic}
-                      </TableCell>
+                      <TableCell>{rule.topic}</TableCell>
                       <TableCell>{rule.channels}</TableCell>
                       <TableCell>{rule.escalation}</TableCell>
                     </TableRow>
@@ -381,7 +239,119 @@ const Alerts = ({ tabValue, darkMode }) => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* SEND ALERT PANEL */}
+        <Grid item xs={12}>
+          <Card sx={{ bgcolor: theme.paper }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Send Regional Flood Alert
+              </Typography>
+
+              <Divider sx={{ mb: 3 }} />
+
+              <Grid container spacing={2}>
+                {/* Region */}
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Region"
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                  >
+                    {STATIC_DATA.stations.map((station) => (
+                      <MenuItem key={station} value={station}>
+                        {station}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                {/* Alert Level */}
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="Alert Level"
+                    value={alertLevel}
+                    onChange={(e) => setAlertLevel(e.target.value)}
+                  >
+                    <MenuItem value="GREEN">Green (Safe)</MenuItem>
+                    <MenuItem value="ORANGE">Orange (Warning)</MenuItem>
+                    <MenuItem value="RED">Red (Danger)</MenuItem>
+                  </TextField>
+                </Grid>
+
+                {/* Subject */}
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Email Subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                  />
+                </Grid>
+
+                {/* Message */}
+                <Grid item xs={12}>
+                  <TextField
+                    multiline
+                    rows={4}
+                    fullWidth
+                    label="Alert Message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
+                </Grid>
+
+                {/* Preview */}
+                {alertLevel && (
+                  <Grid item xs={12}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      Alert Level Preview
+                    </Typography>
+
+                    <Chip
+                      label={alertLevel}
+                      color={getLevelColor(alertLevel)}
+                      sx={{ fontWeight: "bold" }}
+                    />
+                  </Grid>
+                )}
+
+                {/* Send Button */}
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={
+                      loading ? (
+                        <CircularProgress size={18} color="inherit" />
+                      ) : (
+                        <SendIcon />
+                      )
+                    }
+                    onClick={handleSendNotification}
+                    disabled={loading}
+                  >
+                    {loading ? "Sending..." : "Send Alert Notification"}
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </TabPanel>
   );
 };
